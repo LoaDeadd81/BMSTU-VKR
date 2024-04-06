@@ -25,31 +25,37 @@ struct ArcEffect{
     int num;
 };
 
+struct PetriEvent{
+    int t_i;
+    float time;
+};
+
 class PetriNet {
 private:
     int p_num, t_num;
 
     vector<set<int>> t_consequences;
-
     vector<vector<ArcCheck>> t_check;
     vector<vector<ArcEffect>> t_effect;
 
     vector<int> m;
+
+    vector<float> timing;
 public:
-    PetriNet(int p_num, int t_num, const vector<IngArc> &p_to_t_arc, const vector<Arc> &t_po_p_arc, vector<int> m);
+    PetriNet(int p_num, int t_num, const vector<IngArc> &p_to_t_arc, const vector<Arc> &t_po_p_arc, vector<float> timing, vector<int> m);
 
     void run(int limit);
 
-private:
-    void count(const vector<IngArc> &p_to_t_arc, const vector<Arc> &t_po_p_arc);
+    vector<PetriEvent>  find_fired_t_init();
 
-    int find_fired_t();
+    vector<PetriEvent> find_fired_t(int t_i);
 
-    vector<int> find_fired_t(int t_i);
+    void fire_t(int t_i);
 
     bool is_t_fire(int t_i);
 
-    void fire_t(int t_i);
+private:
+    void count(const vector<IngArc> &p_to_t_arc, const vector<Arc> &t_po_p_arc);
 };
 
 #endif
