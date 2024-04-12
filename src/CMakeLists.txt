@@ -7,4 +7,7 @@ add_executable(src main.cpp
         PetriNet.cpp
         PetriNet.h
         Error.h
+        Distributions.h
+        Delft.cpp
+        Delft.h
 )
