@@ -22,6 +22,10 @@ PetriNet::PetriNet(int p_num, int t_num, const vector<IngArc> &p_to_t_arc, const
 
     this->timing = std::move(timing);
 
+    for (int i = 0; i < t_num; ++i) {
+        is_wait[i] = false;
+    }
+
     p_stat = vector<P_Stats>(p_num);
     t_stat = vector<T_Stats>(t_num);
 }
@@ -40,6 +44,7 @@ void PetriNet::run(int limit) {
 
         fire_t(event);
         to_fire = find_fired_t(event.t_i);
+//        if (to_fire.empty()) to_fire = find_fired_t_init();
         for (auto it: to_fire) q.push(it);
 
         count++;
@@ -51,19 +56,26 @@ vector<PetriEvent> PetriNet::find_fired_t_init() {
 //    res.resize(t_num);
 
     for (int i = 0; i < t_num; ++i)
-        if (is_t_fire(i))
-            res.push_back({i, timing[i]->gen()});
+        if (!is_wait[i] && is_t_fire(i)) {
+            is_wait[i] = true;
+            double gen = timing[i]->gen();
+            res.push_back({i, gen});
+            cout << "to fire: " << i << " int: " << gen << endl;
+        }
 
     return res;
 }
 
 vector<PetriEvent> PetriNet::find_fired_t(int t_i) {
     vector<PetriEvent> res;
-//    res.resize(t_num);
 
     for (auto const &i: t_consequences[t_i])
-        if (is_t_fire(i))
-            res.push_back({i, timing[i]->gen()});
+        if (!is_wait[i] && is_t_fire(i)) {
+            is_wait[i] = true;
+            double gen = timing[i]->gen();
+            res.push_back({i, gen});
+            cout << "to fire: " << i << " int: " << gen << endl;
+        }
 
     return res;
 }
@@ -79,13 +91,16 @@ bool PetriNet::is_t_fire(int t_i) {
 void PetriNet::fire_t(PetriEvent event) {
     t_stat[event.t_i].fire_num++;
 
+    is_wait[event.t_i] = false;
     for (auto const &it: t_effect[event.t_i])
         process_p(it.p_index, it.num, event.time);
 
+    cout << endl << endl;
     cout << "fired: " << event.t_i << endl;
     cout << "M: ";
-    for (auto it:m) cout << it << " ";
-    cout << endl << endl;
+    for (auto it: m) cout << it << " ";
+    cout << endl;
+
 }
 
 void PetriNet::process_p(int p_i, int chip_num, double time) {
@@ -93,9 +108,11 @@ void PetriNet::process_p(int p_i, int chip_num, double time) {
 
     if (chip_num > 0) {
         p_stat[p_i].entries += chip_num;
+        //stats
         if (m[p_i] > p_stat[p_i].max_chip) p_stat[p_i].max_chip = m[p_i];
         for (int i = 0; i < chip_num; ++i) p_stat[p_i].in_time.push(time);
     } else {
+        //stats
         for (int i = 0; i < chip_num * -1; ++i) p_stat[p_i].out_time.push(time);
     }
 }

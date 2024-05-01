@@ -95,13 +95,13 @@ int Delft::execute_events() {
     while (!q.empty()) {
         event_done++;
 
-        auto event = q.back();
+        auto event = q.front();
         q.pop();
         if (!net->is_t_fire(event.t_i)) continue;
 
         cout << "time: " << event.time << endl;
         net->fire_t(event);
-        insert_events(net->find_fired_t(event.t_i), event.time);
+        insert_events(net->find_fired_t_init(), event.time);
     }
 
     return event_done;
@@ -115,6 +115,8 @@ void Delft::insert_events(const vector<PetriEvent> &events, double now) {
             low_list[low_pointer].push(it);
         } else {
             double time = now + it.time;
+            if (time > param.m_time)continue;
+
             it.time = time;
             time -= EPS;
 

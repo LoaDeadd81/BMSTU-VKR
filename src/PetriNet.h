@@ -6,6 +6,7 @@
 #include <exception>
 #include <memory>
 #include <queue>
+#include <unordered_map>
 
 #include "Distributions.h"
 
@@ -59,6 +60,8 @@ private:
     vector<int> m;
 
     dist_vector timing;
+
+    unordered_map<int, bool> is_wait;
 
     vector<T_Stats> t_stat;
     vector<P_Stats> p_stat;
