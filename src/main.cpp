@@ -68,7 +68,10 @@ int main() {
             {4, 3},
             {5, 5},
     };
-    vector<int> m = {0, 0, 0, 0, 5, 10};
+    vector<Q_pos> q_pos = {
+            {4, 5},
+            {5, 10}
+    };
     dist_vector timing = {
             make_shared<ConstDistribution>(5),
             make_shared<ConstDistribution>(10),
@@ -79,8 +82,9 @@ int main() {
             make_shared<ImmediateDistribution>(),
             make_shared<ImmediateDistribution>(),
     };
+    vector<int> gen_type = {1, 1};
 
-    auto p_net = make_shared<PetriNet>(p_num, t_num, out_arc, in_arc, m, timing);
+    auto p_net = make_shared<PetriNet>(out_arc, in_arc, p_num, q_pos, timing, gen_type);
 //    p_net->run(100000);
 //    cout << "";
     DelftParam param(1, 5, 210);

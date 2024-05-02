@@ -5,20 +5,25 @@
 
 #include "Error.h"
 
-PetriNet::PetriNet(int p_num, int t_num, const vector<IngArc> &p_to_t_arc, const vector<Arc> &t_po_p_arc,
-                   vector<int> m, dist_vector timing) {
-    if (m.size() != p_num) throw Error("m len != p_num");
-    if (timing.size() != t_num) throw Error("m len != p_num");
-
+PetriNet::PetriNet(const vector<IngArc> &p_to_t_arc, const vector<Arc> &t_po_p_arc, int p_num,
+                   const vector<Q_pos> &q_pos,
+                   dist_vector timing, vector<int> gen_type) {
     this->p_num = p_num;
-    this->t_num = t_num;
+    t_num = timing.size();
+
+    for (int i = 0; i < gen_type.size(); ++i) gen_t[i] = gen_type[i];
+
+    m = vector<queue<int>>(p_num);
+    for (auto pos: q_pos) {
+        q_p[pos.p_i] = true;
+        for (int i = 0; i < pos.val; ++i)
+            m[pos.p_i].push(-1);
+    }
 
     t_consequences = vector<set<int>>(t_num, set<int>());
     t_check = vector<vector<ArcCheck>>(t_num, vector<ArcCheck>());
     t_effect = vector<vector<ArcEffect>>(t_num, vector<ArcEffect>());
     count(p_to_t_arc, t_po_p_arc);
-
-    this->m = std::move(m);
 
     this->timing = std::move(timing);
 
@@ -44,7 +49,6 @@ void PetriNet::run(int limit) {
 
         fire_t(event);
         to_fire = find_fired_t(event.t_i);
-//        if (to_fire.empty()) to_fire = find_fired_t_init();
         for (auto it: to_fire) q.push(it);
 
         count++;
@@ -53,7 +57,6 @@ void PetriNet::run(int limit) {
 
 vector<PetriEvent> PetriNet::find_fired_t_init() {
     vector<PetriEvent> res;
-//    res.resize(t_num);
 
     for (int i = 0; i < t_num; ++i)
         if (!is_wait[i] && is_t_fire(i)) {
@@ -82,7 +85,7 @@ vector<PetriEvent> PetriNet::find_fired_t(int t_i) {
 
 bool PetriNet::is_t_fire(int t_i) {
     for (auto const &it: t_check[t_i])
-        if (m[it.p_index] < it.min_num || m[it.p_index] != 0 && it.is_ing)
+        if (m[it.p_index].size() < it.min_num || !m[it.p_index].empty() && it.is_ing)
             return false;
 
     return true;
@@ -92,30 +95,44 @@ void PetriNet::fire_t(PetriEvent event) {
     t_stat[event.t_i].fire_num++;
 
     is_wait[event.t_i] = false;
-    for (auto const &it: t_effect[event.t_i])
-        process_p(it.p_index, it.num, event.time);
+//    for (auto const &it: t_effect[event.t_i])
+//        process_p(it.p_index, it.num, event.time);
+    auto eff = cpn_t_effect[event.t_i];
+    if(gen_t.contains(event.t_i)){
+        m[eff.push_p].push(gen_t[event.t_i]);
+    } else {
+        if (eff.add_p >= 0) {
+            if (eff.add_val > 0) m[eff.add_p].push(-1);
+            else m[eff.add_p].pop();
+        }
+
+        int val = m[eff.pop_p].front();
+        m[eff.pop_p].pop();
+        if(eff.push_p >= 0) m[eff.push_p].push(val);
+    }
+
 
     cout << endl << endl;
     cout << "fired: " << event.t_i << endl;
     cout << "M: ";
-    for (auto it: m) cout << it << " ";
+    for (auto it: m) cout << it.size() << " ";
     cout << endl;
 
 }
 
-void PetriNet::process_p(int p_i, int chip_num, double time) {
-    m[p_i] += chip_num;
-
-    if (chip_num > 0) {
-        p_stat[p_i].entries += chip_num;
-        //stats
-        if (m[p_i] > p_stat[p_i].max_chip) p_stat[p_i].max_chip = m[p_i];
-        for (int i = 0; i < chip_num; ++i) p_stat[p_i].in_time.push(time);
-    } else {
-        //stats
-        for (int i = 0; i < chip_num * -1; ++i) p_stat[p_i].out_time.push(time);
-    }
-}
+//void PetriNet::process_p(int p_i, int chip_num, double time) {
+//    m[p_i] += chip_num;
+//
+//    if (chip_num > 0) {
+//        p_stat[p_i].entries += chip_num;
+//        //stats
+//        if (m[p_i] > p_stat[p_i].max_chip) p_stat[p_i].max_chip = m[p_i];
+//        for (int i = 0; i < chip_num; ++i) p_stat[p_i].in_time.push(time);
+//    } else {
+//        //stats
+//        for (int i = 0; i < chip_num * -1; ++i) p_stat[p_i].out_time.push(time);
+//    }
+//}
 
 void PetriNet::count(const vector<IngArc> &p_to_t_arc, const vector<Arc> &t_po_p_arc) {
     auto r_minus = vector<vector<pair<int, bool>>>(p_num, vector<pair<int, bool>>(t_num, {0, false}));
@@ -142,14 +159,29 @@ void PetriNet::count(const vector<IngArc> &p_to_t_arc, const vector<Arc> &t_po_p
                                              r_minus[i][j].second
                                      });
 
-    for (int j = 0; j < t_num; ++j)
+    for (int j = 0; j < t_num; ++j) {
         for (int i = 0; i < p_num; ++i)
             if (r_mtr[i][j] != 0)
                 t_effect[j].push_back({
                                               i,
                                               r_mtr[i][j]
                                       });
+        if (t_effect[j].size() > 3) throw invalid_argument("t has more than 3 arrows");
+    }
 
+    cpn_t_effect = vector<T_effect>(t_effect.size());
+    for (int i = 0; i < t_effect.size(); ++i) {
+        for (auto &eff: t_effect[i]) {
+            if (q_p[eff.p_index]) {
+                cpn_t_effect[i].add_p = eff.p_index;
+                cpn_t_effect[i].add_val = eff.num;
+            } else if (eff.num > 0) {
+                cpn_t_effect[i].push_p = eff.p_index;
+            } else {
+                cpn_t_effect[i].pop_p = eff.p_index;
+            }
+        }
+    }
 
     auto t_to_p = vector<vector<int>>(t_num, vector<int>());
     auto p_to_t = vector<vector<int>>(p_num, vector<int>());
