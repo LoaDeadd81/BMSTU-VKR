@@ -34,8 +34,15 @@ void Delft::run() {
         if (level_pointer[level] == top_lists[level].size() && top_lists[level][level_pointer[level] - 1] == 0)
             break;
 
-        level_pointer[level - 1] = level_pointer[level] * param.mult;
-        execute(level - 1, top_lists[level][level_pointer[level]]);
+        if (level - 1 < 0) {
+            low_pointer = level_pointer[level] * param.mult;
+            execute_zero_lvl(top_lists[level][level_pointer[level]]);
+        } else {
+            level_pointer[level - 1] = level_pointer[level] * param.mult;
+            execute(level - 1, top_lists[level][level_pointer[level]]);
+        }
+//        level_pointer[level - 1] = level_pointer[level] * param.mult;
+//        execute(level - 1, top_lists[level][level_pointer[level]]);
 
         level_pointer[level]++;
     }

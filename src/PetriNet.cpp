@@ -3,22 +3,21 @@
 #include <utility>
 #include <iostream>
 
-#include "Error.h"
-
-PetriNet::PetriNet(const vector<IngArc> &p_to_t_arc, const vector<Arc> &t_po_p_arc, int p_num,
-                   const vector<Q_pos> &q_pos,
-                   dist_vector timing, vector<int> gen_type) {
+PetriNet::PetriNet(const vector<IngArc> &p_to_t_arc, const vector<Arc> &t_po_p_arc, int p_num, dist_vector timing,
+                   vector<int> gen_type, const vector<Q_pos> &q_pos,
+                   unordered_map<int, unordered_set<int>> selector_t) {
     this->p_num = p_num;
     t_num = timing.size();
 
     for (int i = 0; i < gen_type.size(); ++i) gen_t[i] = gen_type[i];
 
-    m = vector<queue<int>>(p_num);
+    m = vector<deque<int>>(p_num);
     for (auto pos: q_pos) {
         q_p[pos.p_i] = true;
         for (int i = 0; i < pos.val; ++i)
-            m[pos.p_i].push(-1);
+            m[pos.p_i].push_back(-1);
     }
+    this->selector_t = std::move(selector_t);
 
     t_consequences = vector<set<int>>(t_num, set<int>());
     t_check = vector<vector<ArcCheck>>(t_num, vector<ArcCheck>());
@@ -84,6 +83,44 @@ vector<PetriEvent> PetriNet::find_fired_t(int t_i) {
 }
 
 bool PetriNet::is_t_fire(int t_i) {
+    if (selector_t.contains(t_i)) return check_selector_t(t_i);
+    return check_usual_t(t_i);
+}
+
+void PetriNet::fire_t(PetriEvent event) {
+    t_stat[event.t_i].fire_num++;
+
+    int t_i = event.t_i;
+    is_wait[t_i] = false;
+    if (gen_t.contains(t_i)) {
+        process_gen_t(t_i);
+    } else if (selector_t.contains(t_i)) {
+        process_selector_t(t_i);
+    } else {
+        process_usual_t(t_i);
+    }
+
+    cout << endl << endl;
+    cout << "fired: " << t_i << endl;
+    cout << "M: ";
+    for (const auto &it: m) cout << it.size() << " ";
+    cout << endl;
+
+}
+
+bool PetriNet::check_selector_t(int t_i) {
+    auto eff = cpn_t_effect[t_i];
+    auto tokens = m[eff.pop_p];
+    auto need_tokens = selector_t[t_i];
+
+    for (auto &it: tokens) {
+        if (need_tokens.contains(it)) return true;
+    }
+
+    return false;
+}
+
+bool PetriNet::check_usual_t(int t_i) {
     for (auto const &it: t_check[t_i])
         if (m[it.p_index].size() < it.min_num || !m[it.p_index].empty() && it.is_ing)
             return false;
@@ -91,48 +128,45 @@ bool PetriNet::is_t_fire(int t_i) {
     return true;
 }
 
-void PetriNet::fire_t(PetriEvent event) {
-    t_stat[event.t_i].fire_num++;
-
-    is_wait[event.t_i] = false;
-//    for (auto const &it: t_effect[event.t_i])
-//        process_p(it.p_index, it.num, event.time);
-    auto eff = cpn_t_effect[event.t_i];
-    if(gen_t.contains(event.t_i)){
-        m[eff.push_p].push(gen_t[event.t_i]);
-    } else {
-        if (eff.add_p >= 0) {
-            if (eff.add_val > 0) m[eff.add_p].push(-1);
-            else m[eff.add_p].pop();
-        }
-
-        int val = m[eff.pop_p].front();
-        m[eff.pop_p].pop();
-        if(eff.push_p >= 0) m[eff.push_p].push(val);
-    }
-
-
-    cout << endl << endl;
-    cout << "fired: " << event.t_i << endl;
-    cout << "M: ";
-    for (auto it: m) cout << it.size() << " ";
-    cout << endl;
-
+void PetriNet::process_gen_t(int t_i) {
+    auto eff = cpn_t_effect[t_i];
+    m[eff.push_p].push_back(gen_t[t_i]);
 }
 
-//void PetriNet::process_p(int p_i, int chip_num, double time) {
-//    m[p_i] += chip_num;
-//
-//    if (chip_num > 0) {
-//        p_stat[p_i].entries += chip_num;
-//        //stats
-//        if (m[p_i] > p_stat[p_i].max_chip) p_stat[p_i].max_chip = m[p_i];
-//        for (int i = 0; i < chip_num; ++i) p_stat[p_i].in_time.push(time);
-//    } else {
-//        //stats
-//        for (int i = 0; i < chip_num * -1; ++i) p_stat[p_i].out_time.push(time);
-//    }
-//}
+void PetriNet::process_selector_t(int t_i) {
+    auto eff = cpn_t_effect[t_i];
+    auto &tokens = m[eff.pop_p];
+    auto need_tokens = selector_t[t_i];
+
+    int val;
+    for (auto it = begin(tokens); it != end(tokens); ++it) {
+        if (need_tokens.contains(*it)) {
+            val = *it;
+            tokens.erase(it);
+            break;
+        }
+    }
+
+    if (eff.add_p >= 0) {
+        if (eff.add_val > 0) m[eff.add_p].push_back(-1);
+        else m[eff.add_p].pop_front();
+    }
+
+    if (eff.push_p >= 0) m[eff.push_p].push_back(val);
+}
+
+void PetriNet::process_usual_t(int t_i) {
+    auto eff = cpn_t_effect[t_i];
+
+    if (eff.add_p >= 0) {
+        if (eff.add_val > 0) m[eff.add_p].push_back(-1);
+        else m[eff.add_p].pop_front();
+    }
+
+    int val = m[eff.pop_p].front();
+    m[eff.pop_p].pop_front();
+    if (eff.push_p >= 0) m[eff.push_p].push_back(val);
+}
 
 void PetriNet::count(const vector<IngArc> &p_to_t_arc, const vector<Arc> &t_po_p_arc) {
     auto r_minus = vector<vector<pair<int, bool>>>(p_num, vector<pair<int, bool>>(t_num, {0, false}));

@@ -46,48 +46,70 @@ int main() {
 //            make_shared<ImmediateDistribution>()
 //    };
 
-    int p_num = 6, t_num = 8;
+//    int p_num = 6, t_num = 8;
+//    vector<IngArc> out_arc = {
+//            {{0, 2}, false},
+//            {{0, 6}, false},
+//            {{1, 3}, false},
+//            {{2, 4}, false},
+//            {{2, 7}, false},
+//            {{3, 5}, false},
+//            {{4, 2}, false},
+//            {{4, 6}, true},
+//            {{5, 4}, false},
+//            {{5, 7}, true},
+//    };
+//    vector<Arc> in_arc = {
+//            {0, 0},
+//            {1, 0},
+//            {2, 1},
+//            {3, 2},
+//            {3, 4},
+//            {4, 3},
+//            {5, 5},
+//    };
+//    vector<Q_pos> q_pos = {
+//            {4, 5},
+//            {5, 10}
+//    };
+//    dist_vector timing = {
+//            make_shared<ConstDistribution>(5),
+//            make_shared<ConstDistribution>(10),
+//            make_shared<ImmediateDistribution>(),
+//            make_shared<ConstDistribution>(10),
+//            make_shared<ImmediateDistribution>(),
+//            make_shared<ConstDistribution>(20),
+//            make_shared<ImmediateDistribution>(),
+//            make_shared<ImmediateDistribution>(),
+//    };
+//    vector<int> gen_type = {1, 1};
+
+    int p_num = 1, t_num = 4;
     vector<IngArc> out_arc = {
             {{0, 2}, false},
-            {{0, 6}, false},
-            {{1, 3}, false},
-            {{2, 4}, false},
-            {{2, 7}, false},
-            {{3, 5}, false},
-            {{4, 2}, false},
-            {{4, 6}, true},
-            {{5, 4}, false},
-            {{5, 7}, true},
+            {{0, 3}, false},
     };
     vector<Arc> in_arc = {
             {0, 0},
             {1, 0},
-            {2, 1},
-            {3, 2},
-            {3, 4},
-            {4, 3},
-            {5, 5},
-    };
-    vector<Q_pos> q_pos = {
-            {4, 5},
-            {5, 10}
     };
     dist_vector timing = {
-            make_shared<ConstDistribution>(5),
-            make_shared<ConstDistribution>(10),
-            make_shared<ImmediateDistribution>(),
-            make_shared<ConstDistribution>(10),
-            make_shared<ImmediateDistribution>(),
-            make_shared<ConstDistribution>(20),
-            make_shared<ImmediateDistribution>(),
-            make_shared<ImmediateDistribution>(),
+            make_shared<ConstDistribution>(2),
+            make_shared<ConstDistribution>(4),
+            make_shared<ConstDistribution>(4),
+            make_shared<ConstDistribution>(8),
     };
-    vector<int> gen_type = {1, 1};
+    vector<int> gen_type = {1, 2};
+    vector<Q_pos> q_pos = {};
+    unordered_map<int, unordered_set<int>> selector_t = {
+            {2, {1}},
+            {3, {2}}
+    };
 
-    auto p_net = make_shared<PetriNet>(out_arc, in_arc, p_num, q_pos, timing, gen_type);
+    auto p_net = make_shared<PetriNet>(out_arc, in_arc, p_num, timing, gen_type, q_pos, selector_t);
 //    p_net->run(100000);
 //    cout << "";
-    DelftParam param(1, 5, 210);
+    DelftParam param(1, 5, 40);
     auto delft = Delft(param, p_net);
     delft.run();
     cout << "";

@@ -7,7 +7,7 @@
 #include <memory>
 #include <queue>
 #include <unordered_map>
-#include <stdexcept>
+#include <unordered_set>
 
 #include "Distributions.h"
 
@@ -44,8 +44,8 @@ struct T_Stats {
 };
 
 struct P_Stats {
-    int entries;
-    int max_chip;
+    int entries{};
+    int max_chip{};
     queue<double> in_time;
     queue<double> out_time;
 };
@@ -57,7 +57,7 @@ struct T_effect {
     T_effect() : pop_p(-1), push_p(-1), add_p(-1), add_val(0) {};
 };
 
-struct Q_pos{
+struct Q_pos {
     int p_i;
     int val;
 };
@@ -71,10 +71,12 @@ private:
     vector<vector<ArcEffect>> t_effect;
 
     unordered_map<int, int> gen_t;
+    unordered_map<int, unordered_set<int>> selector_t;
+
     unordered_map<int, bool> q_p;
     vector<T_effect> cpn_t_effect;
 
-    vector<queue<int>> m;
+    vector<deque<int>> m;
 
     dist_vector timing;
 
@@ -84,8 +86,8 @@ private:
     vector<T_Stats> t_stat;
     vector<P_Stats> p_stat;
 public:
-    PetriNet(const vector<IngArc> &p_to_t_arc, const vector<Arc> &t_po_p_arc, int p_num, const vector<Q_pos>& q_pos,
-             dist_vector timing, vector<int> gen_type);
+    PetriNet(const vector<IngArc> &p_to_t_arc, const vector<Arc> &t_po_p_arc, int p_num, dist_vector timing,
+             vector<int> gen_type, const vector<Q_pos> &q_pos, unordered_map<int, unordered_set<int>> selector_t);
 
     void run(int limit);
 
@@ -95,11 +97,20 @@ public:
 
     void fire_t(PetriEvent event);
 
-//    void process_p(int p_i, int chip_num, double time);
 
     bool is_t_fire(int t_i);
 
 private:
+    bool check_selector_t(int t_i);
+
+    bool check_usual_t(int t_i);
+
+    void process_gen_t(int t_i);
+
+    void process_selector_t(int t_i);
+
+    void process_usual_t(int t_i);
+
     void count(const vector<IngArc> &p_to_t_arc, const vector<Arc> &t_po_p_arc);
 };
 
