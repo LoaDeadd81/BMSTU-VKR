@@ -3,6 +3,7 @@
 
 #include "PetriNet.h"
 #include "Delft.h"
+#include "PetriNetDrawer.h"
 
 using namespace std;
 
@@ -68,10 +69,6 @@ int main() {
 //            {4, 3},
 //            {5, 5},
 //    };
-//    vector<Q_pos> q_pos = {
-//            {4, 5},
-//            {5, 10}
-//    };
 //    dist_vector timing = {
 //            make_shared<ConstDistribution>(5),
 //            make_shared<ConstDistribution>(10),
@@ -83,33 +80,79 @@ int main() {
 //            make_shared<ImmediateDistribution>(),
 //    };
 //    vector<int> gen_type = {1, 1};
+//    vector<Q_pos> q_pos = {
+//            {4, 5},
+//            {5, 10}
+//    };
+//    unordered_map<int, unordered_set<int>> selector_t = {
+//};
 
-    int p_num = 1, t_num = 4;
+//    int p_num = 1, t_num = 4;
+//    vector<IngArc> out_arc = {
+//            {{0, 2}, false},
+//            {{0, 3}, false},
+//    };
+//    vector<Arc> in_arc = {
+//            {0, 0},
+//            {1, 0},
+//    };
+//    dist_vector timing = {
+//            make_shared<ConstDistribution>(2),
+//            make_shared<ConstDistribution>(4),
+//            make_shared<ConstDistribution>(4),
+//            make_shared<ConstDistribution>(8),
+//    };
+//    vector<int> gen_type = {1, 2};
+//    vector<Q_pos> q_pos = {};
+//    unordered_map<int, unordered_set<int>> selector_t = {
+//            {2, {1}},
+//            {3, {2}}
+//    };
+
+    int p_num = 3, t_num = 7;
     vector<IngArc> out_arc = {
-            {{0, 2}, false},
             {{0, 3}, false},
+            {{0, 5}, false},
+            {{1, 4}, false},
+            {{2, 6}, false},
     };
     vector<Arc> in_arc = {
             {0, 0},
             {1, 0},
+            {2, 0},
+            {3, 1},
+            {5, 2},
     };
     dist_vector timing = {
+            make_shared<ConstDistribution>(1),
             make_shared<ConstDistribution>(2),
-            make_shared<ConstDistribution>(4),
-            make_shared<ConstDistribution>(4),
-            make_shared<ConstDistribution>(8),
+            make_shared<ConstDistribution>(2),
+            make_shared<ImmediateDistribution>(),
+            make_shared<ConstDistribution>(10),
+            make_shared<ImmediateDistribution>(),
+            make_shared<ConstDistribution>(20),
     };
-    vector<int> gen_type = {1, 2};
+    vector<int> gen_type = {1, 2, 3};
     vector<Q_pos> q_pos = {};
     unordered_map<int, unordered_set<int>> selector_t = {
-            {2, {1}},
-            {3, {2}}
+            {3, {1, 2}},
+            {5, {3}}
+    };
+    unordered_set<int> win_poc = {4, 6};
+    unordered_map<int, shared_ptr<BaseDistribution>> type_proc_distro = {
+            {1, make_shared<ConstDistribution>(10)},
+            {2, make_shared<ConstDistribution>(10)},
+            {3, make_shared<ConstDistribution>(20)},
     };
 
-    auto p_net = make_shared<PetriNet>(out_arc, in_arc, p_num, timing, gen_type, q_pos, selector_t);
+    auto p_net = make_shared<PetriNet>(out_arc, in_arc, p_num, timing, gen_type, q_pos, selector_t, win_poc,
+                                       type_proc_distro);
+//    auto drawer = PetriNetDrawer(p_net->get_import_data());
+//    drawer.draw("net.svg");
+
 //    p_net->run(100000);
 //    cout << "";
-    DelftParam param(1, 5, 40);
+    DelftParam param(1, 5, 400);
     auto delft = Delft(param, p_net);
     delft.run();
     cout << "";

@@ -4,10 +4,16 @@
 #include <iostream>
 
 PetriNet::PetriNet(const vector<IngArc> &p_to_t_arc, const vector<Arc> &t_po_p_arc, int p_num, dist_vector timing,
-                   vector<int> gen_type, const vector<Q_pos> &q_pos,
-                   unordered_map<int, unordered_set<int>> selector_t) {
+                   vector<int> gen_type, const vector<Q_pos> &q_pos, unordered_map<int, unordered_set<int>> selector_t,
+                   unordered_set<int> win_poc, unordered_map<int, shared_ptr<BaseDistribution>> type_proc_distro) {
     this->p_num = p_num;
     t_num = timing.size();
+
+    this->p_to_t_arc = p_to_t_arc;
+    this->t_to_p_arc = t_po_p_arc;
+
+    this->win_poc = std::move(win_poc);
+    this->type_proc_distro = std::move(type_proc_distro);
 
     for (int i = 0; i < gen_type.size(); ++i) gen_t[i] = gen_type[i];
 
@@ -44,7 +50,8 @@ void PetriNet::run(int limit) {
         auto event = q.back();
         q.pop();
 
-        if (!is_t_fire(event.t_i)) continue;
+        auto check_res = is_t_fire(event.t_i);
+        if (!check_res.first) continue;
 
         fire_t(event);
         to_fire = find_fired_t(event.t_i);
@@ -57,13 +64,16 @@ void PetriNet::run(int limit) {
 vector<PetriEvent> PetriNet::find_fired_t_init() {
     vector<PetriEvent> res;
 
-    for (int i = 0; i < t_num; ++i)
-        if (!is_wait[i] && is_t_fire(i)) {
+    for (int i = 0; i < t_num; ++i) {
+        if (is_wait[i]) continue;
+
+        auto fire_res = is_t_fire(i);
+        if (fire_res.first) {
             is_wait[i] = true;
-            double gen = timing[i]->gen();
-            res.push_back({i, gen});
-            cout << "to fire: " << i << " int: " << gen << endl;
+            res.push_back({i, fire_res.second});
+            cout << "to fire: " << i << " int: " << fire_res.second << endl;
         }
+    }
 
     return res;
 }
@@ -71,19 +81,23 @@ vector<PetriEvent> PetriNet::find_fired_t_init() {
 vector<PetriEvent> PetriNet::find_fired_t(int t_i) {
     vector<PetriEvent> res;
 
-    for (auto const &i: t_consequences[t_i])
-        if (!is_wait[i] && is_t_fire(i)) {
+    for (auto const &i: t_consequences[t_i]) {
+        if (is_wait[i]) continue;
+
+        auto fire_res = is_t_fire(i);
+        if (fire_res.first) {
             is_wait[i] = true;
-            double gen = timing[i]->gen();
-            res.push_back({i, gen});
-            cout << "to fire: " << i << " int: " << gen << endl;
+            res.push_back({i, fire_res.second});
+            cout << "to fire: " << i << " int: " << fire_res.second << endl;
         }
+    }
 
     return res;
 }
 
-bool PetriNet::is_t_fire(int t_i) {
+pair<bool, double> PetriNet::is_t_fire(int t_i) {
     if (selector_t.contains(t_i)) return check_selector_t(t_i);
+    else if (win_poc.contains(t_i)) return check_win_proc_t(t_i);
     return check_usual_t(t_i);
 }
 
@@ -105,27 +119,40 @@ void PetriNet::fire_t(PetriEvent event) {
     cout << "M: ";
     for (const auto &it: m) cout << it.size() << " ";
     cout << endl;
-
 }
 
-bool PetriNet::check_selector_t(int t_i) {
+PetriNetImportData PetriNet::get_import_data() {
+    return {p_num, t_num, p_to_t_arc, t_to_p_arc};
+}
+
+pair<bool, double> PetriNet::check_selector_t(int t_i) {
     auto eff = cpn_t_effect[t_i];
     auto tokens = m[eff.pop_p];
     auto need_tokens = selector_t[t_i];
 
     for (auto &it: tokens) {
-        if (need_tokens.contains(it)) return true;
+        if (need_tokens.contains(it)) return {true, timing[t_i]->gen()};
     }
 
-    return false;
+    return {false, 0};
 }
 
-bool PetriNet::check_usual_t(int t_i) {
+pair<bool, double> PetriNet::check_win_proc_t(int t_i) {
+    auto eff = cpn_t_effect[t_i];
+    auto tokens = m[eff.pop_p];
+
+    if (tokens.empty()) return {false, 0};
+
+    auto type = tokens.front();
+    return {true, type_proc_distro[type]->gen()};
+}
+
+pair<bool, double> PetriNet::check_usual_t(int t_i) {
     for (auto const &it: t_check[t_i])
         if (m[it.p_index].size() < it.min_num || !m[it.p_index].empty() && it.is_ing)
-            return false;
+            return {false, 0};
 
-    return true;
+    return {true, timing[t_i]->gen()};
 }
 
 void PetriNet::process_gen_t(int t_i) {

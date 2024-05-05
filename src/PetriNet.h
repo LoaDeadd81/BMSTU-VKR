@@ -62,9 +62,17 @@ struct Q_pos {
     int val;
 };
 
+struct PetriNetImportData {
+    int p_num, t_num;
+    vector<IngArc> p_to_t_arc;
+    vector<Arc> t_to_p_arc;
+};
+
 class PetriNet {
 private:
     int p_num, t_num;
+    vector<IngArc> p_to_t_arc;
+    vector<Arc> t_to_p_arc;
 
     vector<set<int>> t_consequences;
     vector<vector<ArcCheck>> t_check;
@@ -82,12 +90,15 @@ private:
 
     unordered_map<int, bool> is_wait;
 
+    unordered_set<int> win_poc;
+    unordered_map<int, shared_ptr<BaseDistribution>> type_proc_distro;
 
     vector<T_Stats> t_stat;
     vector<P_Stats> p_stat;
 public:
     PetriNet(const vector<IngArc> &p_to_t_arc, const vector<Arc> &t_po_p_arc, int p_num, dist_vector timing,
-             vector<int> gen_type, const vector<Q_pos> &q_pos, unordered_map<int, unordered_set<int>> selector_t);
+             vector<int> gen_type, const vector<Q_pos> &q_pos, unordered_map<int, unordered_set<int>> selector_t,
+             unordered_set<int> win_poc, unordered_map<int, shared_ptr<BaseDistribution>> type_proc_distro);
 
     void run(int limit);
 
@@ -97,13 +108,16 @@ public:
 
     void fire_t(PetriEvent event);
 
+    pair<bool, double> is_t_fire(int t_i);
 
-    bool is_t_fire(int t_i);
+    PetriNetImportData get_import_data();
 
 private:
-    bool check_selector_t(int t_i);
+    pair<bool, double> check_selector_t(int t_i);
 
-    bool check_usual_t(int t_i);
+    pair<bool, double> check_win_proc_t(int t_i);
+
+    pair<bool, double> check_usual_t(int t_i);
 
     void process_gen_t(int t_i);
 

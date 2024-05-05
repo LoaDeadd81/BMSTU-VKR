@@ -104,7 +104,8 @@ int Delft::execute_events() {
 
         auto event = q.front();
         q.pop();
-        if (!net->is_t_fire(event.t_i)) continue;
+        auto check_res = net->is_t_fire(event.t_i);
+        if (!check_res.first) continue;
 
         cout << "time: " << event.time << endl;
         net->fire_t(event);
