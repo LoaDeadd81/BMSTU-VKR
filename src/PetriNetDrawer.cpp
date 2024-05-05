@@ -2,8 +2,8 @@
 
 #include <drag/drag.hpp>
 #include <drag/drawing/draw.hpp>
-#include <drag/types.hpp>
 #include <format>
+#include <string>
 
 
 void PetriNetDrawer::draw(const string &filename) {
@@ -12,13 +12,27 @@ void PetriNetDrawer::draw(const string &filename) {
 
     for (int i = 0; i < data.t_num; ++i) {
         auto v = graph.add_node();
-        opts.labels[v] = format("t{}", v);
+        string label = format("t{}", v);
+
+        if (data.gen_t.contains(v)) label += format(" (g={})", data.gen_t[v]);
+        if (data.selector_t.contains(v)) {
+            string add = "(s=";
+            for (auto &it: data.selector_t[v]) add += format("{},", it);
+            add += ")";
+            label += add;
+        }
+        if (data.win_poc.contains(v)) label += " (p)";
+
+        opts.labels[v] = label;
         opts.colors[v] = "red";
     }
 
     for (int i = 0; i < data.p_num; ++i) {
         auto v = graph.add_node();
-        opts.labels[v] = format("p{}", v - data.t_num);
+        string label = format("p{}", v - data.t_num);
+
+        if (data.q_info.contains(v - data.t_num)) label += format(" (q={})", data.q_info[v - data.t_num]);
+        opts.labels[v] = label;
     }
 
     for (auto &arc: data.t_to_p_arc) {

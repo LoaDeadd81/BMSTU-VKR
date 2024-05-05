@@ -66,6 +66,10 @@ struct PetriNetImportData {
     int p_num, t_num;
     vector<IngArc> p_to_t_arc;
     vector<Arc> t_to_p_arc;
+    unordered_map<int, int> gen_t;
+    unordered_map<int, int> q_info;
+    unordered_map<int, unordered_set<int>> selector_t;
+    unordered_set<int> win_poc;
 };
 
 class PetriNet {
@@ -96,7 +100,7 @@ private:
     vector<T_Stats> t_stat;
     vector<P_Stats> p_stat;
 public:
-    PetriNet(const vector<IngArc> &p_to_t_arc, const vector<Arc> &t_po_p_arc, int p_num, dist_vector timing,
+    PetriNet(const vector<IngArc> &p_to_t_arc, const vector<Arc> &t_to_p_arc, int p_num, dist_vector timing,
              vector<int> gen_type, const vector<Q_pos> &q_pos, unordered_map<int, unordered_set<int>> selector_t,
              unordered_set<int> win_poc, unordered_map<int, shared_ptr<BaseDistribution>> type_proc_distro);
 

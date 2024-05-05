@@ -14,8 +14,8 @@ add_executable(src main.cpp
         Delft.h
         PetriNetDrawer.cpp
         PetriNetDrawer.h
-        PetriNetConstructor.cpp
-        PetriNetConstructor.h
+        PetriNetBuilder.cpp
+        PetriNetBuilder.h
 )
 
 target_link_libraries(src drag)

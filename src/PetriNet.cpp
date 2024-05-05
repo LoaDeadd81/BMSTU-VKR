@@ -3,14 +3,14 @@
 #include <utility>
 #include <iostream>
 
-PetriNet::PetriNet(const vector<IngArc> &p_to_t_arc, const vector<Arc> &t_po_p_arc, int p_num, dist_vector timing,
+PetriNet::PetriNet(const vector<IngArc> &p_to_t_arc, const vector<Arc> &t_to_p_arc, int p_num, dist_vector timing,
                    vector<int> gen_type, const vector<Q_pos> &q_pos, unordered_map<int, unordered_set<int>> selector_t,
                    unordered_set<int> win_poc, unordered_map<int, shared_ptr<BaseDistribution>> type_proc_distro) {
     this->p_num = p_num;
     t_num = timing.size();
 
     this->p_to_t_arc = p_to_t_arc;
-    this->t_to_p_arc = t_po_p_arc;
+    this->t_to_p_arc = t_to_p_arc;
 
     this->win_poc = std::move(win_poc);
     this->type_proc_distro = std::move(type_proc_distro);
@@ -28,7 +28,7 @@ PetriNet::PetriNet(const vector<IngArc> &p_to_t_arc, const vector<Arc> &t_po_p_a
     t_consequences = vector<set<int>>(t_num, set<int>());
     t_check = vector<vector<ArcCheck>>(t_num, vector<ArcCheck>());
     t_effect = vector<vector<ArcEffect>>(t_num, vector<ArcEffect>());
-    count(p_to_t_arc, t_po_p_arc);
+    count(p_to_t_arc, t_to_p_arc);
 
     this->timing = std::move(timing);
 
@@ -122,7 +122,12 @@ void PetriNet::fire_t(PetriEvent event) {
 }
 
 PetriNetImportData PetriNet::get_import_data() {
-    return {p_num, t_num, p_to_t_arc, t_to_p_arc};
+    unordered_map<int, int> q_info;
+    for (auto &it: q_p) {
+        if (it.second) q_info[it.first] = m[it.first].size();
+    }
+
+    return {p_num, t_num, p_to_t_arc, t_to_p_arc, gen_t, q_info, selector_t, win_poc};
 }
 
 pair<bool, double> PetriNet::check_selector_t(int t_i) {
