@@ -22,6 +22,37 @@ struct WinGroupInfo {
     int max_q;
 };
 
+struct TimeBlock {
+    int in, out;
+};
+
+struct QueueStatSource {
+    int queue_p;
+    TimeBlock block;
+    int leave_t;
+};
+
+struct WindowQueueStatSource {
+    int queue_p;
+    int in_t;
+    vector<int> out_t;
+    int leave_t;
+};
+
+struct WindowGroupStatSource {
+    vector<int> out_t;
+};
+
+struct StatSource {
+    int gen_num, out_t;
+
+    QueueStatSource reception_q_src{};
+    int reception_src{};
+
+    vector<WindowQueueStatSource> window_q_src;
+    vector<WindowGroupStatSource> window_src;
+};
+
 class PetriNetBuilder {
 private:
     vector<TypeInfo> type_info;
@@ -47,6 +78,8 @@ private:
     //types
     unordered_map<int, shared_ptr<BaseDistribution>> type_proc_distro;
 
+    StatSource src;
+
 public:
     PetriNetBuilder(
             vector<TypeInfo> type_info,
@@ -55,6 +88,8 @@ public:
     ) : type_info(std::move(type_info)), rec_info(std::move(rec_info)), win_info(std::move(win_info)) {};
 
     shared_ptr<PetriNet> build();
+
+    StatSource get_stat_src();
 
 private:
     void add_types(const vector<TypeInfo> &info);
@@ -67,7 +102,7 @@ private:
 
     void add_win_groups(const WinGroupInfo &info, int select_from);
 
-    void add_win(const WinGroupInfo &info, int select_from, int q_p);
+    TimeBlock add_win(const WinGroupInfo &info, int select_from, int q_p);
 };
 
 #endif

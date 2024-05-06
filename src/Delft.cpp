@@ -107,9 +107,9 @@ int Delft::execute_events() {
         auto check_res = net->is_t_fire(event.t_i);
         if (!check_res.first) continue;
 
-        cout << "time: " << event.time << endl;
+        cout << "sys_time: " << event.sys_time << endl;
         net->fire_t(event);
-        insert_events(net->find_fired_t_init(), event.time);
+        insert_events(net->find_fired_t_init(), event.sys_time);
     }
 
     return event_done;
@@ -117,15 +117,15 @@ int Delft::execute_events() {
 
 void Delft::insert_events(const vector<PetriEvent> &events, double now) {
     for (auto it: events) {
-        if (it.time == 0) {
-            it.time = now;
+        if (it.gen_time == 0) {
+            it.sys_time = now;
             for (int i = 0; i < top_lists.size(); ++i) top_lists[i][level_pointer[i]]++;
             low_list[low_pointer].push(it);
         } else {
-            double time = now + it.time;
+            double time = now + it.gen_time;
             if (time > param.m_time)continue;
 
-            it.time = time;
+            it.sys_time = time;
             time -= EPS;
 
             for (int i = 0; i < top_lists.size(); ++i) {
