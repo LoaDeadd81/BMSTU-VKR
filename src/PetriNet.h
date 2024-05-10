@@ -44,22 +44,24 @@ struct T_Stats {
     vector<double> fire_times{};
     vector<double> gen_times{};
 
-    vector<int> type_fire_num;
-    vector<vector<double>> type_fire_times;
-    vector<vector<double>> type_gen_times;
+//    vector<int> type_fire_num{};
+//    vector<vector<double>> type_fire_times{};
+//    vector<vector<double>> type_gen_times{};
 };
 
 struct P_Stats {
     int max_chip{};
     int entries{};
     int empty_entries{};
-    long long sum;
+    long long sum{};
 
-    vector<double> in_time;
-    vector<double> out_time;
+    double avg{};
 
-    vector<vector<double>> type_in_time;
-    vector<vector<double>> type_out_time;
+    vector<double> in_time{};
+    vector<double> out_time{};
+
+//    vector<vector<double>> type_in_time{};
+//    vector<vector<double>> type_out_time{};
 };
 
 struct PetriStatEvent {
@@ -138,7 +140,7 @@ public:
 
     PetriNetImportData get_import_data();
 
-    pair<T_Stats, P_Stats> get_stats();
+    pair<vector<T_Stats>, vector<P_Stats>> get_stats();
 
 private:
     pair<bool, double> check_selector_t(int t_i);

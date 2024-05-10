@@ -22,20 +22,8 @@ struct WinGroupInfo {
     int max_q;
 };
 
-struct TimeBlock {
-    int in, out;
-};
-
 struct QueueStatSource {
     int queue_p;
-    TimeBlock block;
-    int leave_t;
-};
-
-struct WindowQueueStatSource {
-    int queue_p;
-    int in_t;
-    vector<int> out_t;
     int leave_t;
 };
 
@@ -44,12 +32,12 @@ struct WindowGroupStatSource {
 };
 
 struct StatSource {
-    int gen_num, out_t;
+    int gen_num{}, out_t{};
 
     QueueStatSource reception_q_src{};
     int reception_src{};
 
-    vector<WindowQueueStatSource> window_q_src;
+    vector<QueueStatSource> window_q_src;
     vector<WindowGroupStatSource> window_src;
 };
 
@@ -102,7 +90,7 @@ private:
 
     void add_win_groups(const WinGroupInfo &info, int select_from);
 
-    TimeBlock add_win(const WinGroupInfo &info, int select_from, int q_p);
+    int add_win(const WinGroupInfo &info, int select_from, int q_p);
 };
 
 #endif

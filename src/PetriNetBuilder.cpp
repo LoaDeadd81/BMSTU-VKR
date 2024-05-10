@@ -57,7 +57,6 @@ void PetriNetBuilder::add_reception(const ReceptionInfo &info) {
     p_num += 3;
 
     src.reception_q_src.queue_p = cur_p_num + 1;
-    src.reception_q_src.block = {t_num, t_num + 1};
     src.reception_q_src.leave_t = t_num + 2;
     src.reception_src = t_num + 1;
 }
@@ -102,30 +101,27 @@ void PetriNetBuilder::add_win_groups(const WinGroupInfo &info, int select_from) 
 
     q_pos.push_back({cur_p_num + 3, info.max_q});
 
-    WindowQueueStatSource q_src;
+    QueueStatSource q_src{};
     q_src.queue_p = cur_p_num + 2;
-    q_src.in_t = t_num + 1;
     q_src.leave_t = t_num + 2;
-    vector<int> q_out, w_out;
+    vector<int> w_out;
 
     for (auto &it: info.types) {
         selector_t[t_num].insert(it);
     }
 
     for (int i = 0; i < info.win_num; ++i) {
-        auto block = add_win(info, cur_p_num + 2, cur_p_num + 3);
-        q_out.push_back(block.in);
-        w_out.push_back(block.out);
+        auto t_out = add_win(info, cur_p_num + 2, cur_p_num + 3);
+        w_out.push_back(t_out);
     }
 
-    q_src.out_t = q_out;
     src.window_q_src.push_back(q_src);
 
     WindowGroupStatSource w_src{w_out};
     src.window_src.push_back(w_src);
 }
 
-TimeBlock PetriNetBuilder::add_win(const WinGroupInfo &info, int select_from, int q_p) {
+int PetriNetBuilder::add_win(const WinGroupInfo &info, int select_from, int q_p) {
     int t_num = timing.size();
     int cur_p_num = p_num - 1;
 
@@ -143,5 +139,5 @@ TimeBlock PetriNetBuilder::add_win(const WinGroupInfo &info, int select_from, in
 
     win_poc.insert(t_num + 1);
 
-    return {t_num, t_num + 1};
+    return t_num + 1;
 }

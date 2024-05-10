@@ -109,7 +109,7 @@ int Delft::execute_events() {
 
         cout << "sys_time: " << event.sys_time << endl;
         net->fire_t(event);
-        insert_events(net->find_fired_t_init(), event.sys_time);
+        insert_events(net->find_fired_t(event.t_i), event.sys_time);
     }
 
     return event_done;

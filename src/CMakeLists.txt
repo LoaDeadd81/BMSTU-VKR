@@ -16,6 +16,8 @@ add_executable(src main.cpp
         PetriNetDrawer.h
         PetriNetBuilder.cpp
         PetriNetBuilder.h
+        Stats.cpp
+        Stats.h
 )
 
 target_link_libraries(src drag)

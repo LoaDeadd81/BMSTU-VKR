@@ -46,8 +46,8 @@ PetriNet::PetriNet(const vector<IngArc> &p_to_t_arc, const vector<Arc> &t_to_p_a
                 .sum = 0,
                 .in_time = vector<double>(),
                 .out_time = vector<double>(),
-                .type_in_time = vector<vector<double>>(type_num),
-                .type_out_time = vector<vector<double>>(type_num)
+//                .type_in_time = vector<vector<double>>(type_num),
+//                .type_out_time = vector<vector<double>>(type_num)
         };
     }
 
@@ -57,9 +57,9 @@ PetriNet::PetriNet(const vector<IngArc> &p_to_t_arc, const vector<Arc> &t_to_p_a
                 .fire_num = 0,
                 .fire_times = vector<double>(),
                 .gen_times = vector<double>(),
-                .type_fire_num = vector<int>(type_num),
-                .type_fire_times = vector<vector<double>>(type_num),
-                .type_gen_times = vector<vector<double>>(type_num)
+//                .type_fire_num = vector<int>(type_num),
+//                .type_fire_times = vector<vector<double>>(type_num),
+//                .type_gen_times = vector<vector<double>>(type_num)
         };
     }
 }
@@ -106,6 +106,9 @@ vector<PetriEvent> PetriNet::find_fired_t(int t_i) {
     vector<PetriEvent> res;
 
     for (auto const &i: t_consequences[t_i]) {
+        if (i == 2) {
+            cout << "";
+        }
         if (is_wait[i]) continue;
 
         auto fire_res = is_t_fire(i);
@@ -154,13 +157,37 @@ PetriNetImportData PetriNet::get_import_data() {
     return {p_num, t_num, p_to_t_arc, t_to_p_arc, gen_t, q_info, selector_t, win_poc};
 }
 
-pair<T_Stats, P_Stats> PetriNet::get_stats() {
+pair<vector<T_Stats>, vector<P_Stats>> PetriNet::get_stats() {
     for (auto &it: logs) {
         auto &t_stat = t_stats[it.t];
-        t_stat.fire_num++;
+//        t_stat.fire_num++;
         t_stat.fire_times.push_back(it.sys_time);
         t_stat.gen_times.push_back(it.gen_time);
+
+//        if (it.type > 0) {
+//            t_stat.type_fire_num[it.type - 1]++;
+//            t_stat.type_fire_times[it.type - 1].emplace_back(it.sys_time);
+//            t_stat.type_gen_times[it.type - 1].emplace_back(it.gen_time);
+//        }
+
+        if (it.p_out >= 0) {
+            auto &p_out_stat = p_stats[it.p_out];
+            p_out_stat.out_time.emplace_back(it.sys_time);
+//            p_out_stat.type_out_time[it.type - 1].emplace_back(it.sys_time);
+        }
+
+        if (it.p_in >= 0) {
+            auto &p_in_stat = p_stats[it.p_in];
+            p_in_stat.in_time.emplace_back(it.sys_time);
+//            p_in_stat.type_in_time[it.type - 1].emplace_back(it.sys_time);
+        }
     }
+
+    for (auto &it: p_stats) {
+        it.avg = it.sum / double(it.entries);
+    }
+
+    return {t_stats, p_stats};
 }
 
 pair<bool, double> PetriNet::check_selector_t(int t_i) {
