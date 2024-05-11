@@ -46,8 +46,8 @@ PetriNet::PetriNet(const vector<IngArc> &p_to_t_arc, const vector<Arc> &t_to_p_a
                 .sum = 0,
                 .in_time = vector<double>(),
                 .out_time = vector<double>(),
-//                .type_in_time = vector<vector<double>>(type_num),
-//                .type_out_time = vector<vector<double>>(type_num)
+                .type_in_time = vector<vector<double>>(type_num),
+                .type_out_time = vector<vector<double>>(type_num)
         };
     }
 
@@ -57,9 +57,9 @@ PetriNet::PetriNet(const vector<IngArc> &p_to_t_arc, const vector<Arc> &t_to_p_a
                 .fire_num = 0,
                 .fire_times = vector<double>(),
                 .gen_times = vector<double>(),
-//                .type_fire_num = vector<int>(type_num),
-//                .type_fire_times = vector<vector<double>>(type_num),
-//                .type_gen_times = vector<vector<double>>(type_num)
+                .type_fire_num = vector<int>(type_num),
+                .type_fire_times = vector<vector<double>>(type_num),
+                .type_gen_times = vector<vector<double>>(type_num)
         };
     }
 }
@@ -93,7 +93,7 @@ vector<PetriEvent> PetriNet::find_fired_t_init() {
 
         auto fire_res = is_t_fire(i);
         if (fire_res.first) {
-            is_wait[i] = true;
+            if (fire_res.second > 0) is_wait[i] = true;
             res.push_back({i, fire_res.second});
             cout << "to fire: " << i << " int: " << fire_res.second << endl;
         }
@@ -106,14 +106,11 @@ vector<PetriEvent> PetriNet::find_fired_t(int t_i) {
     vector<PetriEvent> res;
 
     for (auto const &i: t_consequences[t_i]) {
-        if (i == 2) {
-            cout << "";
-        }
         if (is_wait[i]) continue;
 
         auto fire_res = is_t_fire(i);
         if (fire_res.first) {
-            is_wait[i] = true;
+            if (fire_res.second > 0) is_wait[i] = true;
             res.push_back({i, fire_res.second});
             cout << "to fire: " << i << " int: " << fire_res.second << endl;
         }
@@ -164,22 +161,22 @@ pair<vector<T_Stats>, vector<P_Stats>> PetriNet::get_stats() {
         t_stat.fire_times.push_back(it.sys_time);
         t_stat.gen_times.push_back(it.gen_time);
 
-//        if (it.type > 0) {
-//            t_stat.type_fire_num[it.type - 1]++;
-//            t_stat.type_fire_times[it.type - 1].emplace_back(it.sys_time);
-//            t_stat.type_gen_times[it.type - 1].emplace_back(it.gen_time);
-//        }
+        if (it.type > 0) {
+            t_stat.type_fire_num[it.type - 1]++;
+            t_stat.type_fire_times[it.type - 1].emplace_back(it.sys_time);
+            t_stat.type_gen_times[it.type - 1].emplace_back(it.gen_time);
+        }
 
         if (it.p_out >= 0) {
             auto &p_out_stat = p_stats[it.p_out];
             p_out_stat.out_time.emplace_back(it.sys_time);
-//            p_out_stat.type_out_time[it.type - 1].emplace_back(it.sys_time);
+            if (it.type > 0) p_out_stat.type_out_time[it.type - 1].emplace_back(it.sys_time);
         }
 
         if (it.p_in >= 0) {
             auto &p_in_stat = p_stats[it.p_in];
             p_in_stat.in_time.emplace_back(it.sys_time);
-//            p_in_stat.type_in_time[it.type - 1].emplace_back(it.sys_time);
+            if (it.type > 0) p_in_stat.type_in_time[it.type - 1].emplace_back(it.sys_time);
         }
     }
 
@@ -213,6 +210,9 @@ pair<bool, double> PetriNet::check_win_proc_t(int t_i) {
 }
 
 pair<bool, double> PetriNet::check_usual_t(int t_i) {
+    if (t_i == 4 && m[2].size() == 0) {
+        cout << "";
+    }
     for (auto const &it: t_check[t_i])
         if (m[it.p_index].size() < it.min_num || !m[it.p_index].empty() && it.is_ing)
             return {false, 0};
@@ -301,9 +301,10 @@ void PetriNet::push_p_stats(int p_i) {
 }
 
 void PetriNet::count(const vector<IngArc> &p_to_t_arc, const vector<Arc> &t_po_p_arc) {
-    auto r_minus = vector<vector<pair<int, bool>>>(p_num, vector<pair<int, bool>>(t_num, {0, false}));
-    auto r_plus = vector<vector<int>>(p_num, vector<int>(t_num, 0));
-    auto r_mtr = vector<vector<int>>(p_num, vector<int>(t_num, 0));
+    auto r_minus = vector<vector<pair<int,
+            bool>>>(p_num, vector<pair<int, bool >>(t_num, {0, false}));
+    auto r_plus = vector<vector<int >>(p_num, vector<int>(t_num, 0));
+    auto r_mtr = vector<vector<int >>(p_num, vector<int>(t_num, 0));
 
     for (const auto &it: p_to_t_arc)
         r_minus[it.arc.first][it.arc.second] = {1, it.is_ing};
@@ -349,8 +350,8 @@ void PetriNet::count(const vector<IngArc> &p_to_t_arc, const vector<Arc> &t_po_p
         }
     }
 
-    auto t_to_p = vector<vector<int>>(t_num, vector<int>());
-    auto p_to_t = vector<vector<int>>(p_num, vector<int>());
+    auto t_to_p = vector<vector<int >>(t_num, vector<int>());
+    auto p_to_t = vector<vector<int >>(p_num, vector<int>());
 
     for (int i = 0; i < p_num; ++i)
         for (int j = 0; j < t_num; ++j)
@@ -372,6 +373,8 @@ void PetriNet::count(const vector<IngArc> &p_to_t_arc, const vector<Arc> &t_po_p
     for (int i = 0; i < t_num; ++i) {
         for (auto const &it: t_consequences[i]) t_consequences[it].insert(i);
     }
+
+    for (int i = 0; i < t_consequences.size(); i++) t_consequences[i].insert(i);
 }
 
 

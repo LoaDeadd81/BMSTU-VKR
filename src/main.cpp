@@ -111,12 +111,14 @@ int main() {
 //            {3, {2}}
 //    };
 
-//    int p_num = 3, t_num = 7;
+//    int p_num = 4, t_num = 9;
 //    vector<IngArc> out_arc = {
 //            {{0, 3}, false},
 //            {{0, 5}, false},
+//            {{0, 7}, false},
 //            {{1, 4}, false},
 //            {{2, 6}, false},
+//            {{3, 8}, false},
 //    };
 //    vector<Arc> in_arc = {
 //            {0, 0},
@@ -124,42 +126,46 @@ int main() {
 //            {2, 0},
 //            {3, 1},
 //            {5, 2},
+//            {7, 3},
 //    };
 //    dist_vector timing = {
 //            make_shared<ConstDistribution>(1),
-//            make_shared<ConstDistribution>(2),
-//            make_shared<ConstDistribution>(2),
+//            make_shared<ConstDistribution>(1),
+//            make_shared<ConstDistribution>(1),
 //            make_shared<ImmediateDistribution>(),
 //            make_shared<ConstDistribution>(10),
 //            make_shared<ImmediateDistribution>(),
-//            make_shared<ConstDistribution>(20),
+//            make_shared<ConstDistribution>(10),
+//            make_shared<ImmediateDistribution>(),
+//            make_shared<ConstDistribution>(10),
 //    };
 //    vector<int> gen_type = {1, 2, 3};
 //    vector<Q_pos> q_pos = {};
 //    unordered_map<int, unordered_set<int>> selector_t = {
-//            {3, {1, 2}},
-//            {5, {3}}
+//            {3, {1}},
+//            {5, {2}},
+//            {7, {3}}
 //    };
-//    unordered_set<int> win_poc = {4, 6};
+//    unordered_set<int> win_poc = {4, 6, 8};
 //    unordered_map<int, shared_ptr<BaseDistribution>> type_proc_distro = {
 //            {1, make_shared<ConstDistribution>(10)},
 //            {2, make_shared<ConstDistribution>(10)},
-//            {3, make_shared<ConstDistribution>(20)},
+//            {3, make_shared<ConstDistribution>(10)},
 //    };
 //
 //    auto p_net = make_shared<PetriNet>(out_arc, in_arc, p_num, timing, gen_type, q_pos, selector_t, win_poc,
 //                                       type_proc_distro);
 
     vector<TypeInfo> type_info = {
-            {1, make_shared<ConstDistribution>(2), make_shared<ConstDistribution>(1)},
-            {2, make_shared<ConstDistribution>(2), make_shared<ConstDistribution>(1)},
-//            {3, make_shared<ConstDistribution>(1), make_shared<ConstDistribution>(1)},
+            {1, make_shared<UniformDistribution>(4, 6), make_shared<ConstDistribution>(1)},
+            {2, make_shared<UniformDistribution>(4, 6), make_shared<ConstDistribution>(1)},
+            {3, make_shared<UniformDistribution>(4, 6), make_shared<ConstDistribution>(1)},
     };
-    ReceptionInfo rec_info = {make_shared<ConstDistribution>(2), 10};
+    ReceptionInfo rec_info = {make_shared<ConstDistribution>(1), 10};
     vector<WinGroupInfo> win_info = {
             {2, {1}, 10},
             {2, {2}, 10},
-//            {2, {3}, 10},
+            {2, {3}, 10},
     };
 
     auto builder = PetriNetBuilder(type_info, rec_info, win_info);
@@ -169,7 +175,7 @@ int main() {
     auto drawer = PetriNetDrawer(p_net->get_import_data());
     drawer.draw("net.svg");
 
-    int mtime = 400;
+    int mtime = 720;
     DelftParam param(1, 5, mtime);
     auto delft = Delft(param, p_net);
     delft.run();

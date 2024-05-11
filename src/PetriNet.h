@@ -44,9 +44,9 @@ struct T_Stats {
     vector<double> fire_times{};
     vector<double> gen_times{};
 
-//    vector<int> type_fire_num{};
-//    vector<vector<double>> type_fire_times{};
-//    vector<vector<double>> type_gen_times{};
+    vector<int> type_fire_num{};
+    vector<vector<double>> type_fire_times{};
+    vector<vector<double>> type_gen_times{};
 };
 
 struct P_Stats {
@@ -60,8 +60,8 @@ struct P_Stats {
     vector<double> in_time{};
     vector<double> out_time{};
 
-//    vector<vector<double>> type_in_time{};
-//    vector<vector<double>> type_out_time{};
+    vector<vector<double>> type_in_time{};
+    vector<vector<double>> type_out_time{};
 };
 
 struct PetriStatEvent {

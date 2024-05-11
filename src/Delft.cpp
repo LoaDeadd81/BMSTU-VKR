@@ -107,9 +107,9 @@ int Delft::execute_events() {
         auto check_res = net->is_t_fire(event.t_i);
         if (!check_res.first) continue;
 
-        cout << "sys_time: " << event.sys_time << endl;
         net->fire_t(event);
-        insert_events(net->find_fired_t(event.t_i), event.sys_time);
+        cout << "sys_time: " << event.sys_time << endl;
+        insert_events(net->find_fired_t_init(), event.sys_time);
     }
 
     return event_done;
