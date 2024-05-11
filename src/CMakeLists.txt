@@ -19,6 +19,7 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 include_directories(petri_net)
 
 add_executable(vkr
+
         petri_net/PetriNet.cpp
         petri_net/PetriNet.h
         petri_net/Error.h
