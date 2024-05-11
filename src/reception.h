@@ -3,13 +3,20 @@
 
 #include <QWidget>
 
-class ReceptionWidget : public QWidget
-{
-    Q_OBJECT
+#include "ui_reception.h"
+#include "PetriNetBuilder.h"
+#include "DistributionsCFG.h"
+
+
+class ReceptionWidget : public QWidget {
+Q_OBJECT
 public:
     explicit ReceptionWidget(QWidget *parent = nullptr);
 
-signals:
+    ReceptionInfo get_rec_info();
+
+private:
+    Ui::Reception *ui;
 };
 
-#endif // RECEPTIONWIDGET_H
+#endif

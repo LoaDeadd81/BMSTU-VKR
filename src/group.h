@@ -5,26 +5,22 @@
 #include <vector>
 
 #include "ui_group.h"
+#include "DistributionsCFG.h"
+#include "PetriNetBuilder.h"
 
 using namespace std;
 
-struct Distributions{
-    string name;
-};
-
-class group : public QWidget
-{
-    Q_OBJECT
+class GroupWidget : public QWidget {
+Q_OBJECT
 public:
-    explicit group(QWidget *parent = nullptr);
+    explicit GroupWidget(int num, QWidget *parent = nullptr);
+
+    TypeInfo get_type_info();
 
 private:
     Ui::Group *ui;
-    vector<Distributions> distros = {
-            {"Равномерный"}
-    };
 
-signals:
+    int num;
 };
 
-#endif // GROUP_H
+#endif

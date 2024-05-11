@@ -2,8 +2,16 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <string>
 
-#include "petri_net/Distributions.h"
+#include "PetriNetDrawer.h"
+#include "Delft.h"
+#include "Stats.h"
+
+#include "group.h"
+#include "reception.h"
+#include "windows.h"
+#include "result.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -24,7 +32,15 @@ private:
 
 private slots:
 
-    void pb_clicked();
+    void plus_group_clicked();
+
+    void minus_group_clicked();
+
+    void plus_windows_clicked();
+
+    void minus_windows_clicked();
+
+    void count();
 };
 
 #endif // MAINWINDOW_H

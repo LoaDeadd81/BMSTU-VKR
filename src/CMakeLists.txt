@@ -37,11 +37,18 @@ add_executable(vkr
         mainwindow.h
         mainwindow.ui
         group.ui
-        group.h group.cpp
+        group.h
+        group.cpp
         reception.ui
-        windows.ui
         reception.h
         reception.cpp
+        windows.ui
+        windows.cpp
+        windows.h
+        result.ui
+        result.cpp
+        result.h
+        DistributionsCFG.h
 )
 
 target_link_libraries(vkr

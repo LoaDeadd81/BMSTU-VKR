@@ -56,10 +56,10 @@ private:
     //gen
     vector<int> gen_type;
 
-    //reception and group
+    //reception and GroupWidget
     vector<Q_pos> q_pos;
 
-    //group
+    //GroupWidget
     unordered_map<int, unordered_set<int>> selector_t;
     //windows
     unordered_set<int> win_poc;
