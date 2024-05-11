@@ -1,7 +1,7 @@
 #include "PetriNetDrawer.h"
 
-#include <drag/drag.hpp>
-#include <drag/drawing/draw.hpp>
+#include "drag/drag.hpp"
+#include "drag/drawing/draw.hpp"
 #include <format>
 #include <string>
 

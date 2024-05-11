@@ -19,26 +19,28 @@ class Delft {
 private:
     DelftParam param;
 
-    vector<queue<PetriEvent>> low_list;
+    vector <queue<PetriEvent>> low_list;
     int low_pointer;
     int low_period;
 
-    vector<vector<int>> top_lists;
+    vector <vector<int>> top_lists;
     vector<int> level_pointer;
     vector<int> level_period;
 
-    shared_ptr<PetriNet> net;
+    shared_ptr <PetriNet> net;
 public:
-    Delft(DelftParam param, shared_ptr<PetriNet> net);
+    Delft(DelftParam param, shared_ptr <PetriNet> net);
 
     void run();
 
 private:
     int execute(int level, int &event_num);
+
     int execute_zero_lvl(int &event_num);
+
     int execute_events();
 
-    void insert_events(const vector<PetriEvent> &events, double now);
+    void insert_events(const vector <PetriEvent> &events, double now);
 };
 
 #endif

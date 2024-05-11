@@ -1,23 +1,52 @@
-cmake_minimum_required(VERSION 3.27)
-project(src)
+cmake_minimum_required(VERSION 3.5)
+
+project(vkr VERSION 0.1 LANGUAGES CXX)
+
+set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
 
 set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_subdirectory(drag)
+set(CMAKE_PREFIX_PATH "/usr/lib/qt6")
 
-add_executable(src main.cpp
-        PetriNet.cpp
-        PetriNet.h
-        Error.h
-        Distributions.h
-        Delft.cpp
-        Delft.h
-        PetriNetDrawer.cpp
-        PetriNetDrawer.h
-        PetriNetBuilder.cpp
-        PetriNetBuilder.h
-        Stats.cpp
-        Stats.h
+add_subdirectory(petri_net/drag)
+
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
+
+include_directories(petri_net)
+
+add_executable(vkr
+        petri_net/PetriNet.cpp
+        petri_net/PetriNet.h
+        petri_net/Error.h
+        petri_net/Distributions.h
+        petri_net/Delft.cpp
+        petri_net/Delft.h
+        petri_net/PetriNetDrawer.cpp
+        petri_net/PetriNetDrawer.h
+        petri_net/PetriNetBuilder.cpp
+        petri_net/PetriNetBuilder.h
+        petri_net/Stats.cpp
+        petri_net/Stats.h
+
+        main.cpp
+        mainwindow.cpp
+        mainwindow.h
+        mainwindow.ui
+        group.ui
+        group.h group.cpp
+        reception.ui
+        windows.ui
+        reception.h
+        reception.cpp
 )
 
-target_link_libraries(src drag)
+target_link_libraries(vkr
+        Qt::Core
+        Qt::Gui
+        Qt::Widgets
+        drag
+)

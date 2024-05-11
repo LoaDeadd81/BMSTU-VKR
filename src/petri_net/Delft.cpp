@@ -5,12 +5,12 @@
 
 #define EPS 1e-4
 
-Delft::Delft(DelftParam param, shared_ptr<PetriNet> net) {
+Delft::Delft(DelftParam param, shared_ptr <PetriNet> net) {
     this->param = param;
 
     this->net = std::move(net);
 
-    low_list = vector<queue<PetriEvent>>(param.m_time / param.step + 1);
+    low_list = vector < queue < PetriEvent >> (param.m_time / param.step + 1);
     low_period = param.step;
     low_pointer = 0;
 
@@ -115,7 +115,7 @@ int Delft::execute_events() {
     return event_done;
 }
 
-void Delft::insert_events(const vector<PetriEvent> &events, double now) {
+void Delft::insert_events(const vector <PetriEvent> &events, double now) {
     for (auto it: events) {
         if (it.gen_time == 0) {
             it.sys_time = now;
