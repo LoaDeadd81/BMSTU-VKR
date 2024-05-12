@@ -5,12 +5,12 @@
 
 #define EPS 1e-4
 
-Delft::Delft(DelftParam param, shared_ptr <PetriNet> net) {
+Delft::Delft(DelftParam param, shared_ptr<PetriNet> net) {
     this->param = param;
 
     this->net = std::move(net);
 
-    low_list = vector < queue < PetriEvent >> (param.m_time / param.step + 1);
+    low_list = vector<queue<PetriEvent >>(param.m_time / param.step + 1);
     low_period = param.step;
     low_pointer = 0;
 
@@ -41,8 +41,6 @@ void Delft::run() {
             level_pointer[level - 1] = level_pointer[level] * param.mult;
             execute(level - 1, top_lists[level][level_pointer[level]]);
         }
-//        level_pointer[level - 1] = level_pointer[level] * param.mult;
-//        execute(level - 1, top_lists[level][level_pointer[level]]);
 
         level_pointer[level]++;
     }
@@ -54,8 +52,6 @@ int Delft::execute(int level, int &event_num) {
     while (event_num > 0) {
         while (level_pointer[level] < top_lists[level].size() && top_lists[level][level_pointer[level]] == 0)
             level_pointer[level]++;
-//        if (level_pointer[level] == top_lists[level].size() && top_lists[level][level_pointer[level] - 1] == 0)
-//            break;
 
         int exc = 0;
         if (level - 1 < 0) {
@@ -81,8 +77,6 @@ int Delft::execute_zero_lvl(int &event_num) {
     while (event_num > 0) {
         while (low_pointer < low_list.size() && low_list[low_pointer].empty())
             low_pointer++;
-//        if (low_pointer < low_list.size() && top_lists[level][level_pointer[level] - 1] == 0)
-//            break;
 
         int exc = execute_events();
 
@@ -115,7 +109,7 @@ int Delft::execute_events() {
     return event_done;
 }
 
-void Delft::insert_events(const vector <PetriEvent> &events, double now) {
+void Delft::insert_events(const vector<PetriEvent> &events, double now) {
     for (auto it: events) {
         if (it.gen_time == 0) {
             it.sys_time = now;

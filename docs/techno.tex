@@ -1,0 +1,462 @@
+\chapter{Технологический раздел}
+
+\section{Выбор программных средств реализации}
+
+Для реализации программного обеспечения был выбран язык программирования C++. Данный язык был выбран по следующим причинам:
+\begin{itemize}[label=---]
+	\item в нём используется объектно--ориентированная парадигма;
+	\item наличие стандартной библиотеки с готовыми контейнерами и алгоритмами над ними;
+	\item наличие строгой типизации, что упрощает процесс отладки;
+	\item наличие необходимых библиотек для реализации графического интерфейса.
+\end{itemize}
+
+Для реализации графического интерфейса был выбран фреймворк Qt, по следующим причинам:
+\begin{itemize}[label=---]
+	\item поддержка С++;
+	\item наличие ПО для создания графических окон;
+	\item широкая библиотека элементов для графического интерфейса и возможность их модернизации.
+\end{itemize}
+
+В качестве среды разработки был выбран Clion, по следующим причинам:
+\begin{itemize}[label=---]
+	\item встроенная поддержка средств отладки, анализа кода и сборки;
+	\item поддержка для Qt;
+	\item наличии студенческой лицензии.
+\end{itemize}
+
+\section{Описание пользовательского интерфейса интерфейса}
+
+Реализованное ПО получает на вход характеристики многофункционального центра обслуживания, а на выходе выдаёт данные о работе элементов системы. На вход программе поступают информация о группах посетителей, о ресепшен и о группах окон обслуживания. Также пользователь вводит количество групп пользователей и окон и время моделирования.
+
+Для \textbf{групп посетителей} вводятся следующие данные: 
+\begin{itemize}[label=---]
+	\item закон распределения интервала прихода посетителя;
+	\item разброс интервала прихода;
+	\item закон распределения интервала обработки;
+	\item разброс интервала обработки.
+\end{itemize}
+
+Для \textbf{ресепшен} вводятся следующие данные: 
+\begin{itemize}[label=---]
+	\item закон распределения интервала обработки;
+	\item разброс интервала обработки;
+	\item максимальный размер очереди, начиная с которого посетители будут покидать систему без обслуживания.
+\end{itemize}
+
+Для \textbf{групп окон} вводятся следующие данные: 
+\begin{itemize}[label=---]
+	\item количество окон в группе;
+	\item максимальный размер очереди, начиная с которого посетители будут покидать систему без обслуживания;
+	\item группы посетителей, которые обрабатывает данные окна.
+\end{itemize}
+
+После моделирования собираются данные по интересующим переходам и позициям, они обрабатываются и выводятся на экран. Выводится информация о работе все системы, а также каждой очереди, ресепшена и групп окон.
+
+Для \textbf{системы} выводится:
+\begin{itemize}[label=---]
+	\item количество пришедших клиентов;
+	\item процент успешно обслуженных клиентов;
+	\item процент клиентов, ушедших из системы без обслуживания, из--за большой очереди.
+\end{itemize}
+Сумма успешно обслуженных клиентов и ушедших может быть не равна количеству пришедших, так как на момент конца моделирования в системе остались ещё не вышедшие заявки.
+
+Для \textbf{очередей} выводится:
+\begin{itemize}[label=---]
+	\item название;
+	\item максимальный размер;
+	\item количество попыток входа (удачные и неудачные);
+	\item количество входов в пустую очередь;
+	\item средний размер очереди;
+	\item средний время пребывания клиента в очереди;
+	\item количество клиентов, которые не смогли встать в очередь из--за её большого размера.
+\end{itemize}
+
+Для \textbf{обработчиков} выводится:
+\begin{itemize}[label=---]
+	\item название;
+	\item количество успешно обработнных клиентов;
+	\item среднее относительное время работы окон;
+	\item среднее время работы окон.
+\end{itemize}
+
+\section{Пример работы программы}
+
+На рисунке~\ref{img:in} подставлен интерфейс разработанной программы, в котором можно ввести параметры центра обслуживания описанные выше.
+
+\imgScale{0.7}{in}{Ввод параметров многофункционального центра обслуживания}
+\FloatBarrier
+
+На рисунке~\ref{img:out} подставлен результат моделирования, смысл значений которого были описаны выше, для параметров изображённых на рисунке~\ref{img:in}.
+
+\imgScale{0.6}{out}{Результаты моделирования}
+\FloatBarrier
+
+\section{Реализация программного обеспечения}
+
+Разработанное ПО состоит из следующих логических частей:
+\begin{itemize}[label=---]
+	\item сеть Петри: построение, функционирование и сбор статистических данных;
+	\item моделирующий алгоритм: управление сетью Петри;
+	\item графический интерфейс.
+\end{itemize}
+
+\subsection{Реализация сети Петри}
+
+В листингах~\ref{lst:find}--\ref{lst:fire} приведена реализация основного функционала сети Петри, используемого в моделирующем алгоритме.
+
+В листинге~\ref{lst:find}, представлен код функции поиска активных переходов. Перебираются все переходы, кроме уже запланированных на выполнение, и проверяются. В результирующий массив попадает индекс перехода и длительность срабатывания перехода. 
+
+\begin{center}
+	\captionsetup{justification=raggedright,singlelinecheck=off}
+	\begin{lstlisting}[label=lst:find,caption=Функция поиска активного перехода ,showstringspaces=false]
+vector<PetriEvent> PetriNet::find_fired_t_init() {
+	vector<PetriEvent> res;
+	
+	for (int i = 0; i < t_num; ++i) {
+		if (is_wait[i]) continue;
+		
+		auto fire_res = is_t_fire(i);
+		if (fire_res.first) {
+			if (fire_res.second > 0) is_wait[i] = true;
+			res.push_back({i, fire_res.second});
+		}
+	}
+	
+	return res;
+}
+	\end{lstlisting}
+\end{center}
+\FloatBarrier
+
+В листинге~\ref{lst:check}, представлен код функций проверки активности перехода. В зависимости от функционала перехода, выбирается функция проверки. Для переходов, которые пропускают только определённый тип фишек, проверятся наличие таковых в позиции. Для переходов, которые отражают работу окна, проверяется наличие фишек в соответствующей позиции и генерируется длительность срабатывания перехода, в зависимости от типа фишки. Для обычных переходов, проверяются все связанные дугами, в том числе ингибиторными, позиции на наличие необходимого числа фишек.
+
+\begin{center}
+	\captionsetup{justification=raggedright,singlelinecheck=off}
+	\begin{lstlisting}[label=lst:check,caption=Функции проверки автивности перехода ,showstringspaces=false]
+pair<bool, double> PetriNet::is_t_fire(int t_i) {
+	if (selector_t.contains(t_i)) return check_selector_t(t_i);
+	else if (win_poc.contains(t_i)) return check_win_proc_t(t_i);
+	return check_usual_t(t_i);
+}
+
+pair<bool, double> PetriNet::check_selector_t(int t_i) {
+	auto eff = cpn_t_effect[t_i];
+	auto tokens = m[eff.pop_p];
+	auto need_tokens = selector_t[t_i];
+	
+	for (auto &it: tokens) {
+		if (need_tokens.contains(it)) return {true, timing[t_i]->gen()};
+	}
+	
+	return {false, 0};
+}
+
+pair<bool, double> PetriNet::check_win_proc_t(int t_i) {
+	auto eff = cpn_t_effect[t_i];
+	auto tokens = m[eff.pop_p];
+	
+	if (tokens.empty()) return {false, 0};
+	
+	auto type = tokens.front();
+	return {true, type_proc_distro[type]->gen()};
+}
+
+pair<bool, double> PetriNet::check_usual_t(int t_i) {
+	for (auto const &it: t_check[t_i])
+		if (m[it.p_index].size() < it.min_num || !m[it.p_index].empty() && it.is_ing)
+			return {false, 0};
+	
+	return {true, timing[t_i]->gen()};
+}
+	\end{lstlisting}
+\end{center}
+\FloatBarrier
+
+В листинге~\ref{lst:fire}, представлен код функций срабатывания перехода. В зависимости от функционала перехода, выбирается функция срабатывания. Для всех переходов снимается флаг планирования, чтоб их проверяли на активность. Для генераторов, добавляются фишки соответствующего типа в позицию. Для переходов, которые пропускают только определённый тип фишек, происходит выбор фишки нужного типа и перенос её в выходную позицию. Для обычных переходов, переносится верхняя фишка из очереди.
+
+\begin{center}
+	\captionsetup{justification=raggedright,singlelinecheck=off}
+	\begin{lstlisting}[label=lst:fire,caption=Функции срабатывания перехода ,showstringspaces=false]
+void PetriNet::fire_t(PetriEvent event) {
+	t_stats[event.t_i].fire_num++;
+	
+	int t_i = event.t_i;
+	is_wait[t_i] = false;
+	if (gen_t.contains(t_i)) {
+		process_gen_t(event);
+	} else if (selector_t.contains(t_i)) {
+		process_selector_t(event);
+	} else {
+		process_usual_t(event);
+	}
+}
+
+void PetriNet::process_gen_t(PetriEvent event) {
+	int t_i = event.t_i;
+	auto eff = cpn_t_effect[t_i];
+	
+	push_p_stats(eff.push_p);
+	m[eff.push_p].push_back(gen_t[t_i]);
+	logs.push_back({t_i, eff.pop_p, eff.push_p, gen_t[t_i], event.gen_time, event.sys_time});
+}
+
+void PetriNet::process_selector_t(PetriEvent event) {
+	int t_i = event.t_i;
+	auto eff = cpn_t_effect[t_i];
+	auto &tokens = m[eff.pop_p];
+	auto need_tokens = selector_t[t_i];
+	
+	int val = -1;
+	for (auto it = begin(tokens); it != end(tokens); ++it) {
+		if (need_tokens.contains(*it)) {
+			val = *it;
+			tokens.erase(it);
+			break;
+		}
+	}
+	
+	if (eff.add_p >= 0) {
+		if (eff.add_val > 0) {
+			push_p_stats(eff.add_p);
+			m[eff.add_p].push_back(-1);
+			logs.push_back({t_i, -1, eff.add_p, -1, event.gen_time, event.sys_time});
+		} else {
+			m[eff.add_p].pop_front();
+			logs.push_back({t_i, eff.add_p, -1, -1, event.gen_time, event.sys_time});
+		}
+	}
+	
+	int to = -1;
+	if (eff.push_p >= 0) {
+		push_p_stats(eff.push_p);
+		m[eff.push_p].push_back(val);
+		to = eff.push_p;
+	}
+	logs.push_back({t_i, eff.pop_p, to, val, event.gen_time, event.sys_time});
+}
+
+void PetriNet::process_usual_t(PetriEvent event) {
+	int t_i = event.t_i;
+	auto eff = cpn_t_effect[t_i];
+	
+	if (eff.add_p >= 0) {
+		if (eff.add_val > 0) {
+			push_p_stats(eff.add_p);
+			m[eff.add_p].push_back(-1);
+			logs.push_back({t_i, -1, eff.add_p, -1, event.gen_time, event.sys_time});
+		} else {
+			m[eff.add_p].pop_front();
+			logs.push_back({t_i, eff.add_p, -1, -1, event.gen_time, event.sys_time});
+		}
+	}
+	
+	int val = m[eff.pop_p].front();
+	m[eff.pop_p].pop_front();
+	int to = -1;
+	if (eff.push_p >= 0) {
+		push_p_stats(eff.push_p);
+		m[eff.push_p].push_back(val);
+		to = eff.push_p;
+	}
+	logs.push_back({t_i, eff.pop_p, to, val, event.gen_time, event.sys_time});
+}
+
+	\end{lstlisting}
+\end{center}
+\FloatBarrier
+
+\subsection{Реализация моделирующего алгоритма}
+
+В листинге~\ref{lst:delft} приведён класс представляющий моделирующий алгоритм.
+
+\begin{center}
+	\captionsetup{justification=raggedright,singlelinecheck=off}
+	\begin{lstlisting}[label=lst:delft,caption=Класс моделирующего алгоритма ,showstringspaces=false]
+struct DelftParam {
+	int step;
+	int mult;
+	int m_time;
+};
+
+class Delft {
+	private:
+	DelftParam param;
+	
+	vector<queue<PetriEvent>> low_list;
+	int low_pointer;
+	int low_period;
+	
+	vector<vector<int>> top_lists;
+	vector<int> level_pointer;
+	vector<int> level_period;
+	
+	shared_ptr<PetriNet> net;
+	public:
+	Delft(DelftParam param, shared_ptr<PetriNet> net);
+	
+	void run();
+	
+	private:
+	int execute(int level, int &event_num);
+	
+	int execute_zero_lvl(int &event_num);
+	
+	int execute_events();
+	
+	void insert_events(const vector<PetriEvent> &events, double now);
+};		
+	\end{lstlisting}
+\end{center}
+\FloatBarrier
+
+В листинге~\ref{lst:run} приведён код функции, которая обрабатывает самый верхний список часовой структуры. Сначала вставляются события, готовые к выполнению с самого начала. Далее в цикле проходятся по ячейкам списка, пока не найдут не пустую, значение ячейки говорит о количестве событий запланированных в этом промежутке времени. При наличии событий, вызывается функция обработки нижележащего списка и инкрементируется указатель списка.
+
+\begin{center}
+	\captionsetup{justification=raggedright,singlelinecheck=off}
+	\begin{lstlisting}[label=lst:run,caption=Функция обработки верхнего списка,showstringspaces=false]
+void Delft::run() {
+	insert_events(net->find_fired_t_init(), 0);
+	
+	int level = top_lists.size() - 1;
+	while (true) {
+		while (level_pointer[level] < top_lists[level].size() && top_lists[level][level_pointer[level]] == 0)
+		level_pointer[level]++;
+		if (level_pointer[level] == top_lists[level].size() && top_lists[level][level_pointer[level] - 1] == 0)
+		break;
+		
+		if (level - 1 < 0) {
+			low_pointer = level_pointer[level] * param.mult;
+			execute_zero_lvl(top_lists[level][level_pointer[level]]);
+		} else {
+			level_pointer[level - 1] = level_pointer[level] * param.mult;
+			execute(level - 1, top_lists[level][level_pointer[level]]);
+		}
+		
+		level_pointer[level]++;
+	}
+}	
+	\end{lstlisting}
+\end{center}
+\FloatBarrier
+
+В листинге~\ref{lst:execute} приведён код функции, которая обрабатывает промежуточные списки часовой структуры. Работает аналогично функции обработки верхнего уровня, только дополнительно декрементирует счётчик событий ячейки уровнем выше и возвращает количество обработанных событий.
+
+\begin{center}
+	\captionsetup{justification=raggedright,singlelinecheck=off}
+	\begin{lstlisting}[label=lst:execute,caption=Функция обработки промежуточных списков,showstringspaces=false]
+int Delft::execute(int level, int &event_num) {
+	int event_done = 0;
+	
+	while (event_num > 0) {
+		while (level_pointer[level] < top_lists[level].size() && top_lists[level][level_pointer[level]] == 0)
+		level_pointer[level]++;
+		
+		int exc = 0;
+		if (level - 1 < 0) {
+			low_pointer = level_pointer[level] * param.mult;
+			exc = execute_zero_lvl(top_lists[level][level_pointer[level]]);
+		} else {
+			level_pointer[level - 1] = level_pointer[level] * param.mult;
+			exc = execute(level - 1, top_lists[level][level_pointer[level]]);
+		}
+		
+		event_num -= exc;
+		event_done += exc;
+		
+		level_pointer[level]++;
+	}
+	
+	return event_done;
+}		
+	\end{lstlisting}
+\end{center}
+\FloatBarrier
+
+В листинге~\ref{lst:zero} приведён код функции, которая обрабатывает список нулевого уровня часовой структуры. Работает аналогично функции обработки промежуточных уровней уровня, только вместо обработки нижележащих уровней начинает выполнение событий.
+
+\begin{center}
+	\captionsetup{justification=raggedright,singlelinecheck=off}
+	\begin{lstlisting}[label=lst:zero,caption=Функция обработки нижнего списка,showstringspaces=false]
+int Delft::execute_zero_lvl(int &event_num) {
+	int event_done = 0;
+	
+	while (event_num > 0) {
+		while (low_pointer < low_list.size() && low_list[low_pointer].empty())
+		low_pointer++;
+		
+		int exc = execute_events();
+		
+		event_num -= exc;
+		event_done += exc;
+		
+		low_pointer++;
+	}
+	
+	return event_done;
+}	
+	\end{lstlisting}
+\end{center}
+\FloatBarrier
+
+В листинге~\ref{lst:event} приведён код функции, выполняет события из ячейки списка нулевого уровня. Пока список событий не пуст выполняется все события лежащие в нём, а именно активируются переходы. Перед выполнением дополнительно проверяется возможность активации перехода, из--за конфликтов в сети. После выполнения снова происходит поиск активных переходов и вставка их в часовую структуру, при это новое событие может попасть прямо в обрабатываемую очередь.
+
+\begin{center}
+	\captionsetup{justification=raggedright,singlelinecheck=off}
+	\begin{lstlisting}[label=lst:event,caption=Функция выполнения событий,showstringspaces=false]
+int Delft::execute_events() {
+	int event_done = 0;
+	auto &q = low_list[low_pointer];
+	
+	while (!q.empty()) {
+		event_done++;
+		
+		auto event = q.front();
+		q.pop();
+		auto check_res = net->is_t_fire(event.t_i);
+		if (!check_res.first) continue;
+		
+		net->fire_t(event);
+		insert_events(net->find_fired_t_init(), event.sys_time);
+	}
+	
+	return event_done;
+}
+	\end{lstlisting}
+\end{center}
+\FloatBarrier
+
+
+В листинге~\ref{lst:insert} приведён код функции вставки событий в часовую структуру. Для события последовательно вычисляются индексы в верхних списках и инкрементируется счётчики в соответствующих ячейках. Для ячейки нижнего уровня происходит вставка в ей список событий. Если событие должно выполниться моментально, то просто происходит вставка по текущим индексам.
+
+\begin{center}
+	\captionsetup{justification=raggedright,singlelinecheck=off}
+	\begin{lstlisting}[label=lst:insert,caption=Функция выполнения событий,showstringspaces=false]
+void Delft::insert_events(const vector<PetriEvent> &events, double now) {
+	for (auto it: events) {
+		if (it.gen_time == 0) {
+			it.sys_time = now;
+			for (int i = 0; i < top_lists.size(); ++i) top_lists[i][level_pointer[i]]++;
+			low_list[low_pointer].push(it);
+		} else {
+			double time = now + it.gen_time;
+			if (time > param.m_time)continue;
+			
+			it.sys_time = time;
+			time -= EPS;
+			
+			for (int i = 0; i < top_lists.size(); ++i) {
+				int index = int(time / level_period[i]);
+				top_lists[i][index]++;
+			}
+			
+			low_list[int(time / low_period)].push(it);
+		}
+	}
+}
+	\end{lstlisting}
+\end{center}
+\FloatBarrier
+
+\section*{Вывод}
+
+В данном разделе был приведён выбор средств программной реализации. Описан интерфейс программы, а также входные и выходные данные. Представлена и описана основная часть реализации сетей Петри и моделирующего алгоритма.

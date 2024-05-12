@@ -10,26 +10,26 @@
 using namespace std;
 
 struct DelftParam {
-    int step;
-    int mult;
-    int m_time;
+    int step; // шаг времени нижнего списка
+    int mult; // множитель списков
+    int m_time; // общее время
 };
 
 class Delft {
 private:
-    DelftParam param;
+    DelftParam param; // параметры
 
-    vector <queue<PetriEvent>> low_list;
-    int low_pointer;
-    int low_period;
+    vector<queue<PetriEvent>> low_list; // список 0-го уровня
+    int low_pointer; // указатель списка 0-го уровня
+    int low_period; // шаг списка 0-го уровня по времени
 
-    vector <vector<int>> top_lists;
-    vector<int> level_pointer;
-    vector<int> level_period;
+    vector<vector<int>> top_lists; // верхние списки
+    vector<int> level_pointer; // указатели верхних списков
+    vector<int> level_period; // шаги верхних списков по времени
 
-    shared_ptr <PetriNet> net;
+    shared_ptr<PetriNet> net; // сеть Петри
 public:
-    Delft(DelftParam param, shared_ptr <PetriNet> net);
+    Delft(DelftParam param, shared_ptr<PetriNet> net);
 
     void run();
 
@@ -40,7 +40,7 @@ private:
 
     int execute_events();
 
-    void insert_events(const vector <PetriEvent> &events, double now);
+    void insert_events(const vector<PetriEvent> &events, double now);
 };
 
 #endif

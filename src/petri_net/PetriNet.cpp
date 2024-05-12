@@ -157,7 +157,6 @@ PetriNetImportData PetriNet::get_import_data() {
 pair<vector<T_Stats>, vector<P_Stats>> PetriNet::get_stats() {
     for (auto &it: logs) {
         auto &t_stat = t_stats[it.t];
-//        t_stat.fire_num++;
         t_stat.fire_times.push_back(it.sys_time);
         t_stat.gen_times.push_back(it.gen_time);
 
@@ -210,9 +209,6 @@ pair<bool, double> PetriNet::check_win_proc_t(int t_i) {
 }
 
 pair<bool, double> PetriNet::check_usual_t(int t_i) {
-    if (t_i == 4 && m[2].size() == 0) {
-        cout << "";
-    }
     for (auto const &it: t_check[t_i])
         if (m[it.p_index].size() < it.min_num || !m[it.p_index].empty() && it.is_ing)
             return {false, 0};
