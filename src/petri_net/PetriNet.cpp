@@ -95,7 +95,7 @@ vector<PetriEvent> PetriNet::find_fired_t_init() {
         if (fire_res.first) {
             if (fire_res.second > 0) is_wait[i] = true;
             res.push_back({i, fire_res.second});
-            cout << "to fire: " << i << " int: " << fire_res.second << endl;
+//            cout << "to fire: " << i << " int: " << fire_res.second << endl;
         }
     }
 
@@ -112,7 +112,7 @@ vector<PetriEvent> PetriNet::find_fired_t(int t_i) {
         if (fire_res.first) {
             if (fire_res.second > 0) is_wait[i] = true;
             res.push_back({i, fire_res.second});
-            cout << "to fire: " << i << " int: " << fire_res.second << endl;
+//            cout << "to fire: " << i << " int: " << fire_res.second << endl;
         }
     }
 
@@ -138,11 +138,11 @@ void PetriNet::fire_t(PetriEvent event) {
         process_usual_t(event);
     }
 
-    cout << endl << endl;
-    cout << "fired: " << t_i << endl;
-    cout << "M: ";
-    for (const auto &it: m) cout << it.size() << " ";
-    cout << endl;
+//    cout << endl << endl;
+//    cout << "fired: " << t_i << endl;
+//    cout << "M: ";
+//    for (const auto &it: m) cout << it.size() << " ";
+//    cout << endl;
 }
 
 PetriNetImportData PetriNet::get_import_data() {

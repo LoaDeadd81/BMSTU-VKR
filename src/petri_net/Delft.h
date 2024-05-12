@@ -33,6 +33,8 @@ public:
 
     void run();
 
+    int get_levels_num();
+
 private:
     int execute(int level, int &event_num);
 

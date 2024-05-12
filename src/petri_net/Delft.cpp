@@ -46,6 +46,10 @@ void Delft::run() {
     }
 }
 
+int Delft::get_levels_num() {
+    return top_lists.size() + 1;
+}
+
 int Delft::execute(int level, int &event_num) {
     int event_done = 0;
 
@@ -102,7 +106,7 @@ int Delft::execute_events() {
         if (!check_res.first) continue;
 
         net->fire_t(event);
-        cout << "sys_time: " << event.sys_time << endl;
+//        cout << "sys_time: " << event.sys_time << endl;
         insert_events(net->find_fired_t_init(), event.sys_time);
     }
 
