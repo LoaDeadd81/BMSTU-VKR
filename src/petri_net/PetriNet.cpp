@@ -19,7 +19,7 @@ PetriNet::PetriNet(const vector<IngArc> &p_to_t_arc, const vector<Arc> &t_to_p_a
 
     m = vector<deque<int>>(p_num);
     for (auto pos: q_pos) {
-        q_p[pos.p_i] = true;
+        q_p.insert(pos.p_i);
         for (int i = 0; i < pos.val; ++i)
             m[pos.p_i].push_back(-1);
     }
@@ -95,7 +95,6 @@ vector<PetriEvent> PetriNet::find_fired_t_init() {
         if (fire_res.first) {
             if (fire_res.second > 0) is_wait[i] = true;
             res.push_back({i, fire_res.second});
-//            cout << "to fire: " << i << " int: " << fire_res.second << endl;
         }
     }
 
@@ -147,9 +146,9 @@ void PetriNet::fire_t(PetriEvent event) {
 
 PetriNetImportData PetriNet::get_import_data() {
     unordered_map<int, int> q_info;
-    for (auto &it: q_p) {
-        if (it.second) q_info[it.first] = m[it.first].size();
-    }
+//    for (auto &it: q_p) {
+//        if (it.second) q_info[it.first] = m[it.first].size();
+//    }
 
     return {p_num, t_num, p_to_t_arc, t_to_p_arc, gen_t, q_info, selector_t, win_poc};
 }
@@ -335,7 +334,7 @@ void PetriNet::count(const vector<IngArc> &p_to_t_arc, const vector<Arc> &t_po_p
     cpn_t_effect = vector<T_effect>(t_effect.size());
     for (int i = 0; i < t_effect.size(); ++i) {
         for (auto &eff: t_effect[i]) {
-            if (q_p[eff.p_index]) {
+            if (q_p.contains(eff.p_index)) {
                 cpn_t_effect[i].add_p = eff.p_index;
                 cpn_t_effect[i].add_val = eff.num;
             } else if (eff.num > 0) {
@@ -370,7 +369,18 @@ void PetriNet::count(const vector<IngArc> &p_to_t_arc, const vector<Arc> &t_po_p
         for (auto const &it: t_consequences[i]) t_consequences[it].insert(i);
     }
 
-    for (int i = 0; i < t_consequences.size(); i++) t_consequences[i].insert(i);
+//    for (int i = 0; i < t_consequences.size(); i++) t_consequences[i].insert(i);
+
+    for (auto &it: q_p) {
+        int from = 0, to = 0;
+        for (int j = 0; j < t_num; ++j)
+            if (r_minus[it][j].first > 0) {
+                if (r_minus[it][j].second) to = j;
+                else from = j;
+            }
+        t_consequences[from].insert(to);
+    }
+
 }
 
 

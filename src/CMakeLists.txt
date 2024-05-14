@@ -11,6 +11,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CMAKE_PREFIX_PATH "/usr/lib/qt6")
 
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
+
 add_subdirectory(petri_net/drag)
 
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)

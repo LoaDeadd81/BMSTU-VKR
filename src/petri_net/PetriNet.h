@@ -107,7 +107,7 @@ private:
     unordered_map<int, int> gen_t;
     unordered_map<int, unordered_set<int>> selector_t;
 
-    unordered_map<int, bool> q_p;
+    unordered_set<int> q_p;
     vector<T_effect> cpn_t_effect;
 
     vector<deque<int>> m;
