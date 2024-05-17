@@ -89,4 +89,7 @@ void MainWindow::count() {
 
     auto result = new ResultWindow(smoStats, this);
     result->show();
+
+    auto anim = new AnimationWindow(src, this);
+    anim->show();
 }

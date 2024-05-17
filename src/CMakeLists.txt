@@ -19,7 +19,7 @@ add_subdirectory(petri_net/drag)
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
-include_directories(petri_net)
+include_directories(petri_net anim_elements)
 
 add_executable(vkr
         petri_net/PetriNet.cpp
@@ -51,7 +51,21 @@ add_executable(vkr
         result.ui
         result.cpp
         result.h
+        anim.ui
+        animation.cpp
+        animation.h
         DistributionsCFG.h
+        anim_elements/BaseAnimItem.h
+        anim_elements/EnterAnimItem.cpp
+        anim_elements/EnterAnimItem.h
+        anim_elements/QueueAnimItem.cpp
+        anim_elements/QueueAnimItem.h
+        anim_elements/WorkerAnimItem.cpp
+        anim_elements/WorkerAnimItem.h
+        anim_elements/ReceptionAnimItem.cpp
+        anim_elements/ReceptionAnimItem.h
+        anim_elements/WindowsGroupAnimItem.cpp
+        anim_elements/WindowsGroupAnimItem.h
 )
 
 target_link_libraries(vkr

@@ -12,6 +12,7 @@
 #include "reception.h"
 #include "windows.h"
 #include "result.h"
+#include "animation.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
