@@ -6,6 +6,8 @@ ReceptionAnimItem::ReceptionAnimItem(QGraphicsScene *scene, int x, int y, int si
 
     scene->addItem(queue);
     scene->addItem(reception);
+    draw_arrow(scene, queue->get_out_place(), reception->get_in_place(), size);
+    draw_arrow(scene, queue->get_leave_place(), queue->get_exit_place(), size);
 }
 
 QPoint ReceptionAnimItem::get_in_place() {

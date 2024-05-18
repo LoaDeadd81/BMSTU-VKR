@@ -5,6 +5,7 @@
 
 #include "QueueAnimItem.h"
 #include "WorkerAnimItem.h"
+#include "ArrowAnimItem.h"
 
 class ReceptionAnimItem {
 public:

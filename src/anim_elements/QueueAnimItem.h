@@ -10,6 +10,8 @@ private:
     QPoint center;
     QPoint in_point;
     QPoint out_point;
+    QPoint leave_place;
+    QPoint exit_place;
 public:
     QueueAnimItem(int x, int y, int size);
 
@@ -18,6 +20,10 @@ public:
     virtual QPoint get_in_place();
 
     virtual QPoint get_out_place();
+
+    QPoint get_leave_place();
+
+    QPoint get_exit_place();
 };
 
 #endif

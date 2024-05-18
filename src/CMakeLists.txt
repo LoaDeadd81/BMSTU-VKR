@@ -66,6 +66,8 @@ add_executable(vkr
         anim_elements/ReceptionAnimItem.h
         anim_elements/WindowsGroupAnimItem.cpp
         anim_elements/WindowsGroupAnimItem.h
+        anim_elements/ArrowAnimItem.cpp
+        anim_elements/ArrowAnimItem.h
 )
 
 target_link_libraries(vkr

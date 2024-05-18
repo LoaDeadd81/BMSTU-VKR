@@ -6,6 +6,7 @@ WorkerAnimItem::WorkerAnimItem(int x, int y, int size)
     center = QPoint(x + size / 2, y + size / 2);
     in_point = QPoint(x, y + size / 2);
     out_point = QPoint(x + size, y + size / 2);
+    exit_point = QPoint(x + size * 2, y + size / 2);
 }
 
 QPoint WorkerAnimItem::get_center() {
@@ -18,4 +19,8 @@ QPoint WorkerAnimItem::get_in_place() {
 
 QPoint WorkerAnimItem::get_out_place() {
     return out_point;
+}
+
+QPoint WorkerAnimItem::get_exit_place() {
+    return exit_point;
 }

@@ -6,6 +6,7 @@
 
 #include "QueueAnimItem.h"
 #include "WorkerAnimItem.h"
+#include "ArrowAnimItem.h"
 
 using namespace std;
 

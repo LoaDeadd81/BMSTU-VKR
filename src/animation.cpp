@@ -43,12 +43,15 @@ void AnimationWindow::draw_MFC() {
 
     x += size * 3;
     auto reception = ReceptionAnimItem(scene, x, v_center, size);
+    draw_arrow(scene, enter->get_out_place(), reception.queue->get_in_place(), size);
 
     x += size * 6;
     int y = padding;
     auto groups = vector<WindowsGroupAnimItem>();
     for (int i = 0; i < group_num; ++i) {
         auto group = WindowsGroupAnimItem(scene, x, y, size, src.window_src[i].out_t.size(), padding);
+        draw_arrow(scene, reception.reception->get_out_place(), group.queue->get_in_place(), size);
+
         groups.push_back(group);
         y += group.get_size() + padding * 3;
     }

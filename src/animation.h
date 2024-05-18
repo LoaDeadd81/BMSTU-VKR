@@ -10,6 +10,7 @@
 #include "EnterAnimItem.h"
 #include "ReceptionAnimItem.h"
 #include "WindowsGroupAnimItem.h"
+#include "ArrowAnimItem.h"
 
 using namespace std;
 

@@ -11,6 +11,7 @@ private:
     QPoint center;
     QPoint in_point;
     QPoint out_point;
+    QPoint exit_point;
 public:
     WorkerAnimItem(int x, int y, int size);
 
@@ -19,6 +20,8 @@ public:
     virtual QPoint get_in_place();
 
     virtual QPoint get_out_place();
+
+    virtual QPoint get_exit_place();
 };
 
 #endif
