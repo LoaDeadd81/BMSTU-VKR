@@ -90,6 +90,7 @@ void MainWindow::count() {
     auto result = new ResultWindow(smoStats, this);
     result->show();
 
-    auto anim = new AnimationWindow(src, this);
+    auto logs = p_net->get_logs_per_transact();
+    auto anim = new AnimationWindow(src, logs, param.m_time, this);
     anim->show();
 }

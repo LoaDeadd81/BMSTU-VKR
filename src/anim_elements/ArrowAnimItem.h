@@ -8,7 +8,7 @@
 #include <cmath>
 
 
-void draw_arrow(QGraphicsScene *scene, QPoint start, QPoint end, int arrow_size);
+void draw_arrow(QGraphicsScene *scene, QPointF start, QPointF end, int arrow_size);
 
 
 #endif

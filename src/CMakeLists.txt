@@ -68,6 +68,9 @@ add_executable(vkr
         anim_elements/WindowsGroupAnimItem.h
         anim_elements/ArrowAnimItem.cpp
         anim_elements/ArrowAnimItem.h
+        anim_elements/TransactAnimItem.cpp
+        anim_elements/TransactAnimItem.h
+        anim_elements/Colors.h
 )
 
 target_link_libraries(vkr

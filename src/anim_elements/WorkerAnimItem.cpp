@@ -9,15 +9,15 @@ WorkerAnimItem::WorkerAnimItem(int x, int y, int size)
     exit_point = QPoint(x + size * 2, y + size / 2);
 }
 
-QPoint WorkerAnimItem::get_center() {
+QPointF WorkerAnimItem::get_center() {
     return center;
 }
 
-QPoint WorkerAnimItem::get_in_place() {
+QPointF WorkerAnimItem::get_in_place() {
     return in_point;
 }
 
-QPoint WorkerAnimItem::get_out_place() {
+QPointF WorkerAnimItem::get_out_place() {
     return out_point;
 }
 

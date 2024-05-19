@@ -23,6 +23,7 @@ struct WinGroupInfo {
 };
 
 struct QueueStatSource {
+    int in_t;
     int queue_p;
     int leave_t;
 };

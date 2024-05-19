@@ -12,11 +12,9 @@ public:
     QueueAnimItem *queue;
     WorkerAnimItem *reception;
 
+    ReceptionAnimItem() {};
+
     ReceptionAnimItem(QGraphicsScene *scene, int x, int y, int size);
-
-    QPoint get_in_place();
-
-    QPoint get_out_place();
 };
 
 #endif

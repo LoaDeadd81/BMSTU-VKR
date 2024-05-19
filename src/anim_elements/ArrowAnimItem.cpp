@@ -1,6 +1,6 @@
 #include "ArrowAnimItem.h"
 
-void draw_arrow(QGraphicsScene *scene, QPoint start, QPoint end, int arrow_size) {
+void draw_arrow(QGraphicsScene *scene, QPointF start, QPointF end, int arrow_size) {
     qreal arrowSize = arrow_size / 4;
 
     QLineF line(end, start);

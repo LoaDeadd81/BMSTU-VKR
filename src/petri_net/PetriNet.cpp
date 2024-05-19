@@ -17,11 +17,11 @@ PetriNet::PetriNet(const vector<IngArc> &p_to_t_arc, const vector<Arc> &t_to_p_a
 
     for (int i = 0; i < gen_type.size(); ++i) gen_t[i] = gen_type[i];
 
-    m = vector<deque<int>>(p_num);
+    m = vector<deque<PetriNetTransact>>(p_num);
     for (auto pos: q_pos) {
         q_p.insert(pos.p_i);
         for (int i = 0; i < pos.val; ++i)
-            m[pos.p_i].push_back(-1);
+            m[pos.p_i].emplace_back(-1, -1);
     }
     this->selector_t = std::move(selector_t);
 
@@ -159,22 +159,22 @@ pair<vector<T_Stats>, vector<P_Stats>> PetriNet::get_stats() {
         t_stat.fire_times.push_back(it.sys_time);
         t_stat.gen_times.push_back(it.gen_time);
 
-        if (it.type > 0) {
-            t_stat.type_fire_num[it.type - 1]++;
-            t_stat.type_fire_times[it.type - 1].emplace_back(it.sys_time);
-            t_stat.type_gen_times[it.type - 1].emplace_back(it.gen_time);
+        if (it.transact.type > 0) {
+            t_stat.type_fire_num[it.transact.type - 1]++;
+            t_stat.type_fire_times[it.transact.type - 1].emplace_back(it.sys_time);
+            t_stat.type_gen_times[it.transact.type - 1].emplace_back(it.gen_time);
         }
 
         if (it.p_out >= 0) {
             auto &p_out_stat = p_stats[it.p_out];
             p_out_stat.out_time.emplace_back(it.sys_time);
-            if (it.type > 0) p_out_stat.type_out_time[it.type - 1].emplace_back(it.sys_time);
+            if (it.transact.type > 0) p_out_stat.type_out_time[it.transact.type - 1].emplace_back(it.sys_time);
         }
 
         if (it.p_in >= 0) {
             auto &p_in_stat = p_stats[it.p_in];
             p_in_stat.in_time.emplace_back(it.sys_time);
-            if (it.type > 0) p_in_stat.type_in_time[it.type - 1].emplace_back(it.sys_time);
+            if (it.transact.type > 0) p_in_stat.type_in_time[it.transact.type - 1].emplace_back(it.sys_time);
         }
     }
 
@@ -185,13 +185,30 @@ pair<vector<T_Stats>, vector<P_Stats>> PetriNet::get_stats() {
     return {t_stats, p_stats};
 }
 
+vector<vector<PetriStatEvent>> PetriNet::get_logs_per_transact() {
+    auto res = vector<vector<PetriStatEvent>>(next_id);
+
+    for (auto &it: logs)
+        if (it.transact.id >= 0)
+            res[it.transact.id].push_back(it);
+
+    return res;
+}
+
 pair<bool, double> PetriNet::check_selector_t(int t_i) {
     auto eff = cpn_t_effect[t_i];
     auto tokens = m[eff.pop_p];
     auto need_tokens = selector_t[t_i];
 
     for (auto &it: tokens) {
-        if (need_tokens.contains(it)) return {true, timing[t_i]->gen()};
+        bool contains = false;
+        for (auto &need: need_tokens)
+            if (it.type == need) {
+                contains = true;
+                break;
+            }
+
+        if (contains) return {true, timing[t_i]->gen()};
     }
 
     return {false, 0};
@@ -204,7 +221,7 @@ pair<bool, double> PetriNet::check_win_proc_t(int t_i) {
     if (tokens.empty()) return {false, 0};
 
     auto type = tokens.front();
-    return {true, type_proc_distro[type]->gen()};
+    return {true, type_proc_distro[type.type]->gen()};
 }
 
 pair<bool, double> PetriNet::check_usual_t(int t_i) {
@@ -220,8 +237,9 @@ void PetriNet::process_gen_t(PetriEvent event) {
     auto eff = cpn_t_effect[t_i];
 
     push_p_stats(eff.push_p);
-    m[eff.push_p].push_back(gen_t[t_i]);
-    logs.push_back({t_i, eff.pop_p, eff.push_p, gen_t[t_i], event.gen_time, event.sys_time});
+    auto token = PetriNetTransact{next_id++, gen_t[t_i]};
+    m[eff.push_p].push_back(token);
+    logs.push_back({t_i, eff.pop_p, eff.push_p, token, event.gen_time, event.sys_time});
 }
 
 void PetriNet::process_selector_t(PetriEvent event) {
@@ -230,9 +248,16 @@ void PetriNet::process_selector_t(PetriEvent event) {
     auto &tokens = m[eff.pop_p];
     auto need_tokens = selector_t[t_i];
 
-    int val = -1;
+    PetriNetTransact val{};
     for (auto it = begin(tokens); it != end(tokens); ++it) {
-        if (need_tokens.contains(*it)) {
+        bool contains = false;
+        for (auto &need: need_tokens)
+            if (it->type == need) {
+                contains = true;
+                break;
+            }
+
+        if (contains) {
             val = *it;
             tokens.erase(it);
             break;
@@ -242,11 +267,11 @@ void PetriNet::process_selector_t(PetriEvent event) {
     if (eff.add_p >= 0) {
         if (eff.add_val > 0) {
             push_p_stats(eff.add_p);
-            m[eff.add_p].push_back(-1);
-            logs.push_back({t_i, -1, eff.add_p, -1, event.gen_time, event.sys_time});
+            m[eff.add_p].emplace_back(-1, -1);
+            logs.push_back({t_i, -1, eff.add_p, {-1, -1}, event.gen_time, event.sys_time});
         } else {
             m[eff.add_p].pop_front();
-            logs.push_back({t_i, eff.add_p, -1, -1, event.gen_time, event.sys_time});
+            logs.push_back({t_i, eff.add_p, -1, {-1, -1}, event.gen_time, event.sys_time});
         }
     }
 
@@ -266,15 +291,15 @@ void PetriNet::process_usual_t(PetriEvent event) {
     if (eff.add_p >= 0) {
         if (eff.add_val > 0) {
             push_p_stats(eff.add_p);
-            m[eff.add_p].push_back(-1);
-            logs.push_back({t_i, -1, eff.add_p, -1, event.gen_time, event.sys_time});
+            m[eff.add_p].emplace_back(-1, -1);
+            logs.push_back({t_i, -1, eff.add_p, {-1, -1}, event.gen_time, event.sys_time});
         } else {
             m[eff.add_p].pop_front();
-            logs.push_back({t_i, eff.add_p, -1, -1, event.gen_time, event.sys_time});
+            logs.push_back({t_i, eff.add_p, -1, {-1, -1}, event.gen_time, event.sys_time});
         }
     }
 
-    int val = m[eff.pop_p].front();
+    auto val = m[eff.pop_p].front();
     m[eff.pop_p].pop_front();
     int to = -1;
     if (eff.push_p >= 0) {

@@ -7,23 +7,23 @@
 
 class QueueAnimItem : public BaseAnimItem, public QGraphicsEllipseItem {
 private:
-    QPoint center;
-    QPoint in_point;
-    QPoint out_point;
-    QPoint leave_place;
-    QPoint exit_place;
+    QPointF center;
+    QPointF in_point;
+    QPointF out_point;
+    QPointF leave_place;
+    QPointF exit_place;
 public:
     QueueAnimItem(int x, int y, int size);
 
-    virtual QPoint get_center();
+    virtual QPointF get_center();
 
-    virtual QPoint get_in_place();
+    virtual QPointF get_in_place();
 
-    virtual QPoint get_out_place();
+    virtual QPointF get_out_place();
 
-    QPoint get_leave_place();
+    QPointF get_leave_place();
 
-    QPoint get_exit_place();
+    QPointF get_exit_place();
 };
 
 #endif

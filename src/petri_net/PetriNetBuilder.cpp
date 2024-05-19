@@ -56,6 +56,7 @@ void PetriNetBuilder::add_reception(const ReceptionInfo &info) {
 
     p_num += 3;
 
+    src.reception_q_src.in_t = t_num;
     src.reception_q_src.queue_p = cur_p_num + 1;
     src.reception_q_src.leave_t = t_num + 2;
     src.reception_src = t_num + 1;
@@ -102,6 +103,7 @@ void PetriNetBuilder::add_win_groups(const WinGroupInfo &info, int select_from) 
     q_pos.push_back({cur_p_num + 3, info.max_q});
 
     QueueStatSource q_src{};
+    q_src.in_t = t_num;
     q_src.queue_p = cur_p_num + 2;
     q_src.leave_t = t_num + 2;
     vector<int> w_out;

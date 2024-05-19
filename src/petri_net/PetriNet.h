@@ -64,10 +64,15 @@ struct P_Stats {
     vector<vector<double>> type_out_time{};
 };
 
+struct PetriNetTransact {
+    int id;
+    int type;
+};
+
 struct PetriStatEvent {
     int t;
     int p_out, p_in;
-    int type;
+    PetriNetTransact transact;
     double gen_time;
     double sys_time;
 };
@@ -110,7 +115,7 @@ private:
     unordered_set<int> q_p;
     vector<T_effect> cpn_t_effect;
 
-    vector<deque<int>> m;
+    vector<deque<PetriNetTransact>> m;
 
     dist_vector timing;
 
@@ -123,6 +128,8 @@ private:
     vector<P_Stats> p_stats;
 
     vector<PetriStatEvent> logs;
+
+    int next_id = 0;
 public:
     PetriNet(const vector<IngArc> &p_to_t_arc, const vector<Arc> &t_to_p_arc, int p_num, dist_vector timing,
              vector<int> gen_type, const vector<Q_pos> &q_pos, unordered_map<int, unordered_set<int>> selector_t,
@@ -141,6 +148,8 @@ public:
     PetriNetImportData get_import_data();
 
     pair<vector<T_Stats>, vector<P_Stats>> get_stats();
+
+    vector<vector<PetriStatEvent>> get_logs_per_transact();
 
 private:
     pair<bool, double> check_selector_t(int t_i);

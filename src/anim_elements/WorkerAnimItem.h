@@ -15,11 +15,11 @@ private:
 public:
     WorkerAnimItem(int x, int y, int size);
 
-    virtual QPoint get_center();
+    virtual QPointF get_center();
 
-    virtual QPoint get_in_place();
+    virtual QPointF get_in_place();
 
-    virtual QPoint get_out_place();
+    virtual QPointF get_out_place();
 
     virtual QPoint get_exit_place();
 };
