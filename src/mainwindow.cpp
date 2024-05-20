@@ -21,17 +21,32 @@ MainWindow::~MainWindow() {
 }
 
 void MainWindow::plus_group_clicked() {
-    auto gw = new GroupWidget(ui->groupsVL->count() + 1, this);
+    try {
+        if (ui->groupsVL->count() >= 8)
+            throw runtime_error("Нельзя добавить больше 8 типов заявок");
 
-    for (int i = 0; i < ui->windowsVL->count(); ++i) {
-        auto ww = dynamic_cast<WindowsWidget *>(ui->windowsVL->itemAt(i)->widget());
-        ww->add_group();
+
+        auto gw = new GroupWidget(ui->groupsVL->count() + 1, this);
+
+        for (int i = 0; i < ui->windowsVL->count(); ++i) {
+            auto ww = dynamic_cast<WindowsWidget *>(ui->windowsVL->itemAt(i)->widget());
+            ww->add_group();
+        }
+
+        ui->groupsVL->addWidget(gw);
+    } catch (const exception &e) {
+        auto msg = new QMessageBox(this);
+        msg->setIcon(QMessageBox::Critical);
+        msg->setText("Ошибка");
+        msg->setInformativeText(e.what());
+        msg->setWindowTitle("Ошибка");
+        msg->exec();
     }
-
-    ui->groupsVL->addWidget(gw);
 }
 
 void MainWindow::minus_group_clicked() {
+    if (ui->groupsVL->isEmpty()) return;
+
     auto gw = ui->groupsVL->itemAt(ui->groupsVL->count() - 1);
     if (gw != nullptr) delete gw->widget();
 
@@ -48,49 +63,80 @@ void MainWindow::plus_windows_clicked() {
 }
 
 void MainWindow::minus_windows_clicked() {
+    if (ui->windowsVL->isEmpty()) return;
+
     auto ww = ui->windowsVL->itemAt(ui->windowsVL->count() - 1);
     if (ww != nullptr) delete ww->widget();
 }
 
 void MainWindow::count() {
-    vector<TypeInfo> type_info;
-    ReceptionInfo rec_info;
-    vector<WinGroupInfo> win_info;
+    try {
+        vector<TypeInfo> type_info;
+        ReceptionInfo rec_info;
+        vector<WinGroupInfo> win_info;
 
-    for (int i = 0; i < ui->groupsVL->count(); ++i) {
-        auto gw = dynamic_cast<GroupWidget *>(ui->groupsVL->itemAt(i)->widget());
-        type_info.push_back(gw->get_type_info());
+        for (int i = 0; i < ui->groupsVL->count(); ++i) {
+            auto gw = dynamic_cast<GroupWidget *>(ui->groupsVL->itemAt(i)->widget());
+            type_info.push_back(gw->get_type_info());
+        }
+
+        auto rw = dynamic_cast<ReceptionWidget *>(ui->receptionVL->itemAt(0)->widget());
+        rec_info = rw->get_rec_info();
+
+        for (int i = 0; i < ui->windowsVL->count(); ++i) {
+            auto ww = dynamic_cast<WindowsWidget *>(ui->windowsVL->itemAt(i)->widget());
+            win_info.push_back(ww->get_win_group_info());
+        }
+
+        int mtime = ui->mtimeSB->value();
+
+        if (type_info.empty())
+            throw runtime_error("Необходимо добавть хотя бы 1 группу заявок");
+        if (win_info.empty())
+            throw runtime_error("Необходимо добавть хотя бы 1 группу окон");
+
+        if (type_info.size() > 8)
+            throw runtime_error("Нельзя добавить больше 8 типов заявок");
+
+        set<int> type_set;
+        for (auto &win: win_info) {
+            for (auto &type: win.types) {
+                if (type_set.contains(type))
+                    throw runtime_error("Несколько групп окон не могут обрабатывать один и тот же тип заявок");
+                type_set.insert(type);
+            }
+        }
+        if (type_set.size() != type_info.size())
+            throw runtime_error("Не все группы заявок выбраны для выполнения");
+
+
+        auto builder = PetriNetBuilder(type_info, rec_info, win_info);
+        auto p_net = builder.build();
+        auto src = builder.get_stat_src();
+
+        auto drawer = PetriNetDrawer(p_net->get_import_data());
+        drawer.draw("net.svg");
+
+        DelftParam param(1, 5, mtime);
+        auto delft = Delft(param, p_net);
+        delft.run();
+
+        auto stats = p_net->get_stats();
+        auto aggregator = StatsAggregator(mtime, src, stats.first, stats.second);
+        auto smoStats = aggregator.get_stats();
+
+        auto result = new ResultWindow(smoStats, this);
+        result->show();
+
+        auto logs = p_net->get_logs_per_transact();
+        auto anim = new AnimationWindow(src, logs, param.m_time, this);
+        anim->show();
+    } catch (const exception &e) {
+        auto msg = new QMessageBox(this);
+        msg->setIcon(QMessageBox::Critical);
+        msg->setText("Ошибка");
+        msg->setInformativeText(e.what());
+        msg->setWindowTitle("Ошибка");
+        msg->exec();
     }
-
-    auto rw = dynamic_cast<ReceptionWidget *>(ui->receptionVL->itemAt(0)->widget());
-    rec_info = rw->get_rec_info();
-
-    for (int i = 0; i < ui->windowsVL->count(); ++i) {
-        auto ww = dynamic_cast<WindowsWidget *>(ui->windowsVL->itemAt(i)->widget());
-        win_info.push_back(ww->get_win_group_info());
-    }
-
-    int mtime = ui->mtimeSB->value();
-
-    auto builder = PetriNetBuilder(type_info, rec_info, win_info);
-    auto p_net = builder.build();
-    auto src = builder.get_stat_src();
-
-    auto drawer = PetriNetDrawer(p_net->get_import_data());
-    drawer.draw("net.svg");
-
-    DelftParam param(1, 5, mtime);
-    auto delft = Delft(param, p_net);
-    delft.run();
-
-    auto stats = p_net->get_stats();
-    auto aggregator = StatsAggregator(mtime, src, stats.first, stats.second);
-    auto smoStats = aggregator.get_stats();
-
-    auto result = new ResultWindow(smoStats, this);
-    result->show();
-
-    auto logs = p_net->get_logs_per_transact();
-    auto anim = new AnimationWindow(src, logs, param.m_time, this);
-    anim->show();
 }

@@ -48,7 +48,7 @@ private:
     int mtime;
     QTimeLine *tl;
     deque<TransactAnim> anim_list;
-    int anim_speed = 100;
+    int anim_speed = 30;
 
     void draw_MFC();
 

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>948</width>
-    <height>600</height>
+    <width>738</width>
+    <height>858</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -53,17 +53,17 @@
       </attribute>
       <column>
        <property name="text">
-        <string>Всего</string>
+        <string>Вошло</string>
        </property>
       </column>
       <column>
        <property name="text">
-        <string>% обработанных</string>
+        <string>Обработано</string>
        </property>
       </column>
       <column>
        <property name="text">
-        <string>% ушедших</string>
+        <string>Ушло</string>
        </property>
       </column>
      </widget>
@@ -78,59 +78,111 @@
     <item>
      <widget class="QTableWidget" name="queueTW">
       <property name="sizePolicy">
-       <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+       <sizepolicy hsizetype="Fixed" vsizetype="Minimum">
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
       </property>
       <property name="minimumSize">
        <size>
-        <width>930</width>
-        <height>100</height>
+        <width>720</width>
+        <height>50</height>
        </size>
       </property>
       <attribute name="horizontalHeaderDefaultSectionSize">
-       <number>130</number>
+       <number>100</number>
       </attribute>
       <column>
        <property name="text">
-        <string>название</string>
+        <string>Название</string>
        </property>
       </column>
       <column>
        <property name="text">
-        <string>макс. фишек</string>
+        <string>Макс. фишек</string>
        </property>
       </column>
       <column>
        <property name="text">
-        <string>попытки входа</string>
+        <string>Входы</string>
        </property>
       </column>
       <column>
        <property name="text">
-        <string>пустых входов</string>
+        <string>Пустые входы</string>
        </property>
       </column>
       <column>
        <property name="text">
-        <string>средний размер</string>
+        <string>Ср. размер</string>
        </property>
       </column>
       <column>
        <property name="text">
-        <string>среднее время</string>
+        <string>Ср. время</string>
        </property>
       </column>
       <column>
        <property name="text">
-        <string>кол-во покинувших</string>
+        <string>Ушло</string>
        </property>
       </column>
      </widget>
     </item>
     <item>
      <widget class="QLabel" name="label_3">
+      <property name="text">
+       <string>ОА</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QTableWidget" name="workerTW">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Fixed" vsizetype="Minimum">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>420</width>
+        <height>60</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>60</height>
+       </size>
+      </property>
+      <attribute name="horizontalHeaderDefaultSectionSize">
+       <number>100</number>
+      </attribute>
+      <column>
+       <property name="text">
+        <string>Название</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>Обработано</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>Загрузка</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>Ср. время</string>
+       </property>
+      </column>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLabel" name="label_4">
       <property name="text">
        <string>Группы окон</string>
       </property>
@@ -139,53 +191,109 @@
     <item>
      <widget class="QTableWidget" name="windowsTW">
       <property name="sizePolicy">
-       <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+       <sizepolicy hsizetype="Fixed" vsizetype="Minimum">
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
       </property>
       <property name="minimumSize">
        <size>
-        <width>500</width>
-        <height>100</height>
+        <width>620</width>
+        <height>50</height>
        </size>
       </property>
       <attribute name="horizontalHeaderDefaultSectionSize">
-       <number>120</number>
+       <number>100</number>
       </attribute>
       <column>
        <property name="text">
-        <string>название</string>
+        <string>Название</string>
        </property>
       </column>
       <column>
        <property name="text">
-        <string>обработано</string>
+        <string>Кол-во окон</string>
        </property>
       </column>
       <column>
        <property name="text">
-        <string>загрузка</string>
+        <string>Обработано</string>
        </property>
       </column>
       <column>
        <property name="text">
-        <string>ср. время работы</string>
+        <string>Загрузка</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>Раб. окна</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>Ср. время</string>
+       </property>
+      </column>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLabel" name="label_5">
+      <property name="text">
+       <string>Группы заявок</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QTableWidget" name="typesTW">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Fixed" vsizetype="Minimum">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>620</width>
+        <height>50</height>
+       </size>
+      </property>
+      <attribute name="horizontalHeaderDefaultSectionSize">
+       <number>100</number>
+      </attribute>
+      <column>
+       <property name="text">
+        <string>Название</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>Вошло</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>Обработано</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>Ушло</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>Вр. ожидания</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>Вр. обработки</string>
        </property>
       </column>
      </widget>
     </item>
    </layout>
-  </widget>
-  <widget class="QMenuBar" name="menubar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>948</width>
-     <height>23</height>
-    </rect>
-   </property>
   </widget>
  </widget>
  <resources/>

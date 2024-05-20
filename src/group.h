@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <vector>
+#include <stdexcept>
 
 #include "ui_group.h"
 #include "DistributionsCFG.h"

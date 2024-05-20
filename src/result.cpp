@@ -9,6 +9,8 @@ ResultWindow::ResultWindow(SMOStats stats, QWidget *parent)
     set_system_result();
     set_queue_result();
     set_worker_result();
+    set_groups_result();
+    set_types_result();
 }
 
 void ResultWindow::set_system_result() {
@@ -17,9 +19,9 @@ void ResultWindow::set_system_result() {
     ui->systemTW->setItem(0, 0,
                           new QTableWidgetItem(QString::number(stats.system_stats.total_req)));
     ui->systemTW->setItem(0, 1,
-                          new QTableWidgetItem(QString::number(stats.system_stats.complete_perc * 100, 'f', 0)));
+                          new QTableWidgetItem(QString::number(stats.system_stats.complete)));
     ui->systemTW->setItem(0, 2,
-                          new QTableWidgetItem(QString::number(stats.system_stats.leave_perc * 100, 'f', 0)));
+                          new QTableWidgetItem(QString::number(stats.system_stats.leave)));
 }
 
 void ResultWindow::set_queue_result() {
@@ -31,12 +33,26 @@ void ResultWindow::set_queue_result() {
 }
 
 void ResultWindow::set_worker_result() {
-    ui->windowsTW->setRowCount(stats.window_groups_stats.size() + 1);
+    ui->workerTW->setRowCount(1);
 
     set_worker_row(0, "Ресепшен", stats.reception_stats);
-    for (int i = 0; i < stats.window_groups_stats.size(); ++i)
-        set_worker_row(i + 1, format("ГО {}", i + 1), stats.window_groups_stats[i]);
+
 }
+
+void ResultWindow::set_groups_result() {
+    ui->windowsTW->setRowCount(stats.window_groups_stats.size());
+
+    for (int i = 0; i < stats.window_groups_stats.size(); ++i)
+        set_group_row(i, format("ГО {}", i + 1), stats.window_groups_stats[i]);
+}
+
+void ResultWindow::set_types_result() {
+    ui->typesTW->setRowCount(stats.type_stats.size());
+
+    for (int i = 0; i < stats.type_stats.size(); ++i)
+        set_type_row(i, format("ГЗ {}", i + 1), stats.type_stats[i]);
+}
+
 
 void ResultWindow::set_queue_row(int row, string name, QueueStats stat) {
     ui->queueTW->setItem(row, 0,
@@ -56,13 +72,43 @@ void ResultWindow::set_queue_row(int row, string name, QueueStats stat) {
 }
 
 void ResultWindow::set_worker_row(int row, string name, WorkerStats stat) {
+    ui->workerTW->setItem(row, 0,
+                          new QTableWidgetItem(QString::fromStdString(name)));
+    ui->workerTW->setItem(row, 1,
+                          new QTableWidgetItem(QString::number(stat.complete)));
+    ui->workerTW->setItem(row, 2,
+                          new QTableWidgetItem(QString::number(stat.util, 'f', 2)));
+    ui->workerTW->setItem(row, 3,
+                          new QTableWidgetItem(QString::number(stat.avg_work_time, 'f', 2)));
+}
+
+void ResultWindow::set_group_row(int row, string name, GroupStats stat) {
     ui->windowsTW->setItem(row, 0,
                            new QTableWidgetItem(QString::fromStdString(name)));
     ui->windowsTW->setItem(row, 1,
-                           new QTableWidgetItem(QString::number(stat.complete)));
+                           new QTableWidgetItem(QString::number(stat.cap)));
     ui->windowsTW->setItem(row, 2,
-                           new QTableWidgetItem(QString::number(stat.util, 'f', 2)));
+                           new QTableWidgetItem(QString::number(stat.complete)));
     ui->windowsTW->setItem(row, 3,
+                           new QTableWidgetItem(QString::number(stat.util, 'f', 2)));
+    ui->windowsTW->setItem(row, 4,
+                           new QTableWidgetItem(QString::number(stat.avg_cnt, 'f', 2)));
+    ui->windowsTW->setItem(row, 5,
                            new QTableWidgetItem(QString::number(stat.avg_work_time, 'f', 2)));
+}
+
+void ResultWindow::set_type_row(int row, string name, TypeStats stat) {
+    ui->typesTW->setItem(row, 0,
+                         new QTableWidgetItem(QString::fromStdString(name)));
+    ui->typesTW->setItem(row, 1,
+                         new QTableWidgetItem(QString::number(stat.gen)));
+    ui->typesTW->setItem(row, 2,
+                         new QTableWidgetItem(QString::number(stat.complete)));
+    ui->typesTW->setItem(row, 3,
+                         new QTableWidgetItem(QString::number(stat.leave)));
+    ui->typesTW->setItem(row, 4,
+                         new QTableWidgetItem(QString::number(stat.q_avg_time, 'f', 2)));
+    ui->typesTW->setItem(row, 5,
+                         new QTableWidgetItem(QString::number(stat.w_avg_time, 'f', 2)));
 }
 

@@ -6,6 +6,12 @@ shared_ptr<PetriNet> PetriNetBuilder::build() {
     add_reception(rec_info);
     add_groups(win_info);
 
+    src.type_w_index = vector<int>(type_info.size());
+    for (int i = 0; i < win_info.size(); ++i)
+        for (auto type: win_info[i].types)
+            src.type_w_index[type - 1] = i;
+
+
     return make_shared<PetriNet>(p_to_t_arc, t_to_p_arc, p_num, timing, gen_type, q_pos, selector_t, win_poc,
                                  type_proc_distro);
 }

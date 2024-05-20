@@ -40,6 +40,8 @@ struct StatSource {
 
     vector<QueueStatSource> window_q_src;
     vector<WindowGroupStatSource> window_src;
+
+    vector<int> type_w_index;
 };
 
 class PetriNetBuilder {

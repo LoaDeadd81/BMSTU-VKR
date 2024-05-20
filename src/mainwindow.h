@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <string>
+#include <QMessageBox>
 
 #include "PetriNetDrawer.h"
 #include "Delft.h"
