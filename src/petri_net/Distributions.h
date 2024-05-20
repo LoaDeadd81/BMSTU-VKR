@@ -38,11 +38,18 @@ class NormalDistribution : public BaseDistribution {
 private:
     random_device rd;
     normal_distribution<> dist;
+    double a, b;
 public:
-    explicit NormalDistribution(double mean, double sigma) : dist(mean, sigma) {};
+    explicit NormalDistribution(double a, double b) : dist(0, 0.3), a(a), b(b) {};
 
     double gen() override {
-        return dist(rd);
+        double mean = (b + a) / 2, interval = (b - a) / 2;
+        double num = dist(rd);
+        if (num < -1) num = -1;
+        if (num > 1) num = 1;
+        double res = mean + interval * num;
+
+        return res;
     }
 };
 

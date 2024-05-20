@@ -8,11 +8,13 @@
 #include "Distributions.h"
 
 static vector<string> distro_name = {
-        "Равномерный"
+        "Равномерный",
+        "Нормальный"
 };
 
 static shared_ptr<BaseDistribution> get_distro_by_id(int id, double a, double b) {
     if (id == 0) return make_shared<UniformDistribution>(a, b);
+    if (id == 1) return make_shared<NormalDistribution>(a, b);
     else return make_shared<UniformDistribution>(a, b);
 }
 
