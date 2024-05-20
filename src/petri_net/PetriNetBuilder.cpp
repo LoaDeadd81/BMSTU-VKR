@@ -112,6 +112,7 @@ void PetriNetBuilder::add_win_groups(const WinGroupInfo &info, int select_from) 
     q_src.in_t = t_num;
     q_src.queue_p = cur_p_num + 2;
     q_src.leave_t = t_num + 2;
+    vector<int> w_in;
     vector<int> w_out;
 
     for (auto &it: info.types) {
@@ -119,13 +120,14 @@ void PetriNetBuilder::add_win_groups(const WinGroupInfo &info, int select_from) 
     }
 
     for (int i = 0; i < info.win_num; ++i) {
+        w_in.push_back(timing.size());
         auto t_out = add_win(info, cur_p_num + 2, cur_p_num + 3);
         w_out.push_back(t_out);
     }
 
     src.window_q_src.push_back(q_src);
 
-    WindowGroupStatSource w_src{w_out};
+    WindowGroupStatSource w_src{w_in, w_out};
     src.window_src.push_back(w_src);
 }
 

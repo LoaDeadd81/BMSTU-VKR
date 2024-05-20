@@ -71,6 +71,8 @@ add_executable(vkr
         anim_elements/TransactAnimItem.cpp
         anim_elements/TransactAnimItem.h
         anim_elements/Colors.h
+        anim_elements/QSizeAnimItem.cpp
+        anim_elements/QSizeAnimItem.h
 )
 
 target_link_libraries(vkr

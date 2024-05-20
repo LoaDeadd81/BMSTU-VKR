@@ -2,7 +2,8 @@
 
 TransactAnimItem::TransactAnimItem(int type, int x, int y, int size)
         : QGraphicsEllipseItem(x - size / 4, y - size / 4, size / 2, size / 2) {
-    this->setBrush(QBrush(color_vec[type]));
+    this->setBrush(QBrush(color_vec[type - 1]));
+    this->setPos(x, y);
 }
 
 void TransactAnimItem::on_animFinish() {

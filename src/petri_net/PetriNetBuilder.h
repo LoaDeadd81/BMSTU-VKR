@@ -29,6 +29,7 @@ struct QueueStatSource {
 };
 
 struct WindowGroupStatSource {
+    vector<int> in_t;
     vector<int> out_t;
 };
 

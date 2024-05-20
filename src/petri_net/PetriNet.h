@@ -99,6 +99,11 @@ struct PetriNetImportData {
     unordered_set<int> win_poc;
 };
 
+struct QLog {
+    double time;
+    int size;
+};
+
 class PetriNet {
 private:
     int p_num, t_num;
@@ -129,6 +134,8 @@ private:
 
     vector<PetriStatEvent> logs;
 
+    unordered_map<int, vector<QLog>> q_logs;
+
     int next_id = 0;
 public:
     PetriNet(const vector<IngArc> &p_to_t_arc, const vector<Arc> &t_to_p_arc, int p_num, dist_vector timing,
@@ -150,6 +157,8 @@ public:
     pair<vector<T_Stats>, vector<P_Stats>> get_stats();
 
     vector<vector<PetriStatEvent>> get_logs_per_transact();
+
+    unordered_map<int, vector<QLog>> get_q_logs();
 
 private:
     pair<bool, double> check_selector_t(int t_i);

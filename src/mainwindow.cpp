@@ -14,6 +14,7 @@ MainWindow::MainWindow(QWidget *parent)
     QObject::connect(ui->windowsPlusPB, SIGNAL(clicked()), this, SLOT(plus_windows_clicked()));
     QObject::connect(ui->windowsMinusPB, SIGNAL(clicked()), this, SLOT(minus_windows_clicked()));
     QObject::connect(ui->countPB, SIGNAL(clicked()), this, SLOT(count()));
+    QObject::connect(ui->showPB, SIGNAL(clicked()), this, SLOT(animate()));
 }
 
 MainWindow::~MainWindow() {
@@ -88,7 +89,7 @@ void MainWindow::count() {
             win_info.push_back(ww->get_win_group_info());
         }
 
-        int mtime = ui->mtimeSB->value();
+        mtime = ui->mtimeSB->value();
 
         if (type_info.empty())
             throw runtime_error("Необходимо добавть хотя бы 1 группу заявок");
@@ -111,8 +112,8 @@ void MainWindow::count() {
 
 
         auto builder = PetriNetBuilder(type_info, rec_info, win_info);
-        auto p_net = builder.build();
-        auto src = builder.get_stat_src();
+        p_net = builder.build();
+        src = builder.get_stat_src();
 
         auto drawer = PetriNetDrawer(p_net->get_import_data());
         drawer.draw("net.svg");
@@ -127,9 +128,26 @@ void MainWindow::count() {
 
         auto result = new ResultWindow(smoStats, this);
         result->show();
+        
+    } catch (const exception &e) {
+        auto msg = new QMessageBox(this);
+        msg->setIcon(QMessageBox::Critical);
+        msg->setText("Ошибка");
+        msg->setInformativeText(e.what());
+        msg->setWindowTitle("Ошибка");
+        msg->exec();
+    }
+}
 
+void MainWindow::animate() {
+    try {
+        if (!p_net)
+            throw runtime_error("Сначала нужно произвести расчёты");
+
+        auto speed = ui->sSpeedSB->value();
         auto logs = p_net->get_logs_per_transact();
-        auto anim = new AnimationWindow(src, logs, param.m_time, this);
+        auto q_logs = p_net->get_q_logs();
+        auto anim = new AnimationWindow(src, logs, mtime, speed, q_logs, this);
         anim->show();
     } catch (const exception &e) {
         auto msg = new QMessageBox(this);

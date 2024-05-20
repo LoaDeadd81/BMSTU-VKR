@@ -19,6 +19,8 @@ public:
     WindowsGroupAnimItem(QGraphicsScene *scene, int x, int y, int size, int workers_num, int padding);
 
     int get_size();
+
+    WorkerAnimItem *get_worker(int i);
 };
 
 #endif

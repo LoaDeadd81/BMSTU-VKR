@@ -21,3 +21,7 @@ WindowsGroupAnimItem::WindowsGroupAnimItem(QGraphicsScene *scene, int x, int y, 
 int WindowsGroupAnimItem::get_size() {
     return size * workers.size() + padding * (workers.size() - 1);
 }
+
+WorkerAnimItem *WindowsGroupAnimItem::get_worker(int i) {
+    return workers[i];
+}

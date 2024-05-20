@@ -32,6 +32,10 @@ public:
 private:
     Ui::MainWindow *ui;
 
+    shared_ptr<PetriNet> p_net;
+    StatSource src;
+    int mtime;
+
 private slots:
 
     void plus_group_clicked();
@@ -43,6 +47,8 @@ private slots:
     void minus_windows_clicked();
 
     void count();
+
+    void animate();
 };
 
 #endif // MAINWINDOW_H

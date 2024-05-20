@@ -9,6 +9,7 @@
 #include <unordered_map>
 #include <QSequentialAnimationGroup>
 #include <QPauseAnimation>
+#include <QParallelAnimationGroup>
 
 #include <iostream>
 
@@ -20,6 +21,7 @@
 #include "ArrowAnimItem.h"
 #include "PetriNet.h"
 #include "TransactAnimItem.h"
+#include "QSizeAnimItem.h"
 
 using namespace std;
 
@@ -29,16 +31,23 @@ struct TransactAnim {
     QSequentialAnimationGroup *anim;
 };
 
+struct QAnim {
+    int time;
+    QPropertyAnimation *anim;
+};
+
 class AnimationWindow : public QMainWindow {
 Q_OBJECT
 public:
-    AnimationWindow(StatSource src, vector<vector<PetriStatEvent>> logs, int mtime, QWidget *parent = nullptr);
+    AnimationWindow(StatSource src, vector<vector<PetriStatEvent>> logs, int mtime, int anim_speed,
+                    unordered_map<int, vector<QLog>> q_logs, QWidget *parent);
 
 private:
     Ui::Anim *ui;
     QGraphicsScene *scene;
     StatSource src;
     vector<vector<PetriStatEvent>> logs;
+    unordered_map<int, vector<QLog>> q_logs;
 
     int size;
     EnterAnimItem *enter{};
@@ -48,9 +57,14 @@ private:
     int mtime;
     QTimeLine *tl;
     deque<TransactAnim> anim_list;
-    int anim_speed = 30;
+    deque<QAnim> q_anim;
+    int anim_speed = 50;
+
+    void set_desc();
 
     void draw_MFC();
+
+    void create_q_anims(QSizeAnimItem *item, const vector<QLog> &q_log);
 
     void create_anims();
 

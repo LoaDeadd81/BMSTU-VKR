@@ -195,6 +195,10 @@ vector<vector<PetriStatEvent>> PetriNet::get_logs_per_transact() {
     return res;
 }
 
+unordered_map<int, vector<QLog>> PetriNet::get_q_logs() {
+    return q_logs;
+}
+
 pair<bool, double> PetriNet::check_selector_t(int t_i) {
     auto eff = cpn_t_effect[t_i];
     auto tokens = m[eff.pop_p];
@@ -288,17 +292,6 @@ void PetriNet::process_usual_t(PetriEvent event) {
     int t_i = event.t_i;
     auto eff = cpn_t_effect[t_i];
 
-    if (eff.add_p >= 0) {
-        if (eff.add_val > 0) {
-            push_p_stats(eff.add_p);
-            m[eff.add_p].emplace_back(-1, -1);
-            logs.push_back({t_i, -1, eff.add_p, {-1, -1}, event.gen_time, event.sys_time});
-        } else {
-            m[eff.add_p].pop_front();
-            logs.push_back({t_i, eff.add_p, -1, {-1, -1}, event.gen_time, event.sys_time});
-        }
-    }
-
     auto val = m[eff.pop_p].front();
     m[eff.pop_p].pop_front();
     int to = -1;
@@ -308,6 +301,21 @@ void PetriNet::process_usual_t(PetriEvent event) {
         to = eff.push_p;
     }
     logs.push_back({t_i, eff.pop_p, to, val, event.gen_time, event.sys_time});
+
+    if (eff.add_p >= 0) {
+        if (eff.add_val > 0) {
+            push_p_stats(eff.add_p);
+            m[eff.add_p].emplace_back(-1, -1);
+
+            logs.push_back({t_i, -1, eff.add_p, {-1, -1}, event.gen_time, event.sys_time});
+            q_logs[eff.pop_p].emplace_back(event.sys_time, m[eff.pop_p].size());
+        } else {
+            m[eff.add_p].pop_front();
+
+            logs.push_back({t_i, eff.add_p, -1, {-1, -1}, event.gen_time, event.sys_time});
+            q_logs[eff.push_p].emplace_back(event.sys_time, m[eff.push_p].size());
+        }
+    }
 }
 
 void PetriNet::push_p_stats(int p_i) {
