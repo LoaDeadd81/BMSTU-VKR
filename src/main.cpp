@@ -17,12 +17,12 @@ void measure_time();
 void compare_time();
 
 int main(int argc, char *argv[]) {
-    QApplication a(argc, argv);
-    MainWindow w;
-    w.show();
-    return a.exec();
+//    QApplication a(argc, argv);
+//    MainWindow w;
+//    w.show();
+//    return a.exec();
 
-//    compare();
+    compare();
 
 //    compare_time();
 
@@ -166,49 +166,59 @@ void measure_levels() {
     double delta = 0.1;
     int mtime = 2000;
     int delft_step = 1;
-    int delft_mult = 10;
+    int delft_mult = 5;
 
     vector<double> ro;
     vector<double> lmbd_vec;
-    while (lmbd > mu) {
+    while (lmbd > mu - 7.5) {
         lmbd_vec.push_back(lmbd);
         ro.push_back(mu / lmbd);
         lmbd -= step;
     }
 
-    vector<vector<double>> output;
-    output.push_back(ro);
+    auto param = DelftParam(delft_step, delft_mult, mtime);
+    auto res = measure_ro(lmbd_vec, mu, delta, param);
 
-    for (int i = 1; i < 6; i++) {
-        auto param = DelftParam(i, delft_mult, mtime);
-        output.push_back(measure_ro(lmbd_vec, mu, delta, param));
-        cout << i << endl;
-    }
-
-    ofstream file("res10.csv", ios::out);
-
-    for (int j = 0; j < output[0].size(); ++j) {
-        for (int i = 0; i < output.size(); ++i) {
-            file << format("{};", output[i][j]);
-        }
-        file << endl;
+    ofstream file("res_new.csv", ios::out);
+    for (int i = 0; i < res.size(); ++i) {
+        file << format("{};{}", ro[i], res[i]) << endl;
     }
 
     file.close();
+
+//    vector<vector<double>> output;
+//    output.push_back(ro);
+//
+//    for (int i = 1; i < 6; i++) {
+//        auto param = DelftParam(i, delft_mult, mtime);
+//        output.push_back(measure_ro(lmbd_vec, mu, delta, param));
+//        cout << i << endl;
+//    }
+//
+//    ofstream file("res_new.csv", ios::out);
+//
+//    for (int j = 0; j < output[0].size(); ++j) {
+//        for (int i = 0; i < output.size(); ++i) {
+//            file << format("{};", output[i][j]);
+//        }
+//        file << endl;
+//    }
+//
+//    file.close();
 }
 
 void measure_time() {
     double mu = 15;
-    double lmbd = mu * 2;
-    double delta = 0.1;
+    double lmbd = mu / 2;
+    double delta = 1;
 
-    int mtime_start = 10000000;
-    int mtime_end = 20000000;
-    int step = 1000000;
-    int repeat_num = 1;
+    int mtime_start = 100;
+    int mtime_end = 5000;
+    int step = 5;
+    int repeat_num = 10;
 
-    int delft_step = 5;
-    int delft_mult = 10;
+    int delft_step = 1;
+    int delft_mult = 5;
 
 
     vector<TypeInfo> type_info = {
@@ -227,7 +237,7 @@ void measure_time() {
             {3, {3}, 10},
     };
 
-    ofstream file("time_cmp.csv", ios::out);
+    ofstream file("time20.csv", ios::out);
     for (int i = mtime_start; i < mtime_end; i += step) {
         auto param = DelftParam(delft_step, delft_mult, i);
 
