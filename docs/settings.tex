@@ -20,7 +20,7 @@
 
 \usepackage{geometry}
 \geometry{left=30mm}
-\geometry{right=10mm}
+\geometry{right=11mm}
 \geometry{top=20mm}
 \geometry{bottom=20mm}
 
@@ -32,6 +32,7 @@
 \titlespacing*{\chapter}{\parindent}{-30pt}{26pt}
 \titlespacing*{\section}{\parindent}{*4}{*4}
 \titlespacing*{\subsection}{\parindent}{*4}{*4}
+\titlespacing*{\subsubsection}{\parindent}{*4}{*4}
 
 
 \usepackage{setspace}
@@ -51,7 +52,7 @@
 
 % Для листинга кода:
 \lstset{%
-	language=python,   					% выбор языка для подсветки	
+	language=C++,   					% выбор языка для подсветки	
 	basicstyle=\small\sffamily,			% размер и начертание шрифта для подсветки кода
 	numbers=left,						% где поставить нумерацию строк (слева\справа)
 	%numberstyle=,					% размер шрифта для номеров строк
@@ -64,6 +65,7 @@
 	breakatwhitespace=true,				% переносить строки только если есть пробел
 	escapeinside={\#*}{*)},				% если нужно добавить комментарии в коде
 	backgroundcolor=\color{white},
+	xleftmargin=0.5cm
 }
 
 \usepackage{svg}
@@ -113,3 +115,25 @@
 \usepackage{amssymb}
 
 \newcolumntype{d}[1]{D{,}{,}{#1}}
+
+\usepackage{tocloft}
+
+\setlength{\cftbeforetoctitleskip}{0pt}
+\renewcommand{\contentsname}{СОДЕРЖАНИЕ}
+\renewcommand{\cfttoctitlefont}{\hfill\normalsize\bfseries}
+\renewcommand{\cftaftertoctitle}{\hfill\mbox{}}
+
+
+% Remove padding for TOC entries
+\renewcommand{\cftsecindent}{0em}
+\renewcommand{\cftsubsecindent}{0em}
+\renewcommand{\cftsubsubsecindent}{0em}
+
+% Customizing TOC entries font and alignment
+\renewcommand{\cftsecfont}{\normalsize}
+\renewcommand{\cftsubsecfont}{\normalsize}
+\renewcommand{\cftsubsubsecfont}{\normalsize}
+
+\setlength{\cftbeforetoctitleskip}{-20pt}
+
+\setlist[itemize]{leftmargin=20mm}
