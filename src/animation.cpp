@@ -48,7 +48,18 @@ void AnimationWindow::set_desc() {
         ui->colorGl->addWidget(clr, i, 0);
         ui->colorGl->addWidget(name, i, 1);
     }
-//    ui->colorGl->setColumnStretch(1, 1);
+
+    auto entScene = new QGraphicsScene(this);
+    ui->entGW->setScene(entScene);
+    entScene->addItem(new EnterAnimItem(0, 0, 40));
+
+    auto qScene = new QGraphicsScene(this);
+    ui->qGW->setScene(qScene);
+    qScene->addItem(new QueueAnimItem(0, 0, 40));
+
+    auto oaScene = new QGraphicsScene(this);
+    ui->oaGW->setScene(oaScene);
+    oaScene->addItem(new WorkerAnimItem(0, 0, 40));
 }
 
 void AnimationWindow::draw_MFC() {
